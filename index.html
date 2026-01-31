@@ -485,12 +485,19 @@
             const loadingMsg = document.getElementById('loading-msg');
             loadingMsg.style.display = 'block';
 
+            // ใช้ลิงก์ออนไลน์เพื่อให้เห็นรถทันที (ถ้าคุณมีไฟล์ car.glb ให้แก้ตรงนี้กลับเป็น 'car.glb')
+            const modelUrl = './2017_chevrolet_colorado_zr2.glb'; 
+
             loader.load(
-                './2017_chevrolet_colorado_zr2.glb',   // 👈 ไฟล์ของคุณ
+                modelUrl,
                 (gltf) => {
                     scene.remove(car);
                     car = gltf.scene;
-                    car.scale.set(1, 1, 1); // ปรับตามขนาดโมเดล
+                    
+                    // ปรับสเกลให้เล็กลงสำหรับโมเดล Ferrari (ถ้าไฟล์อื่นอาจใช้ 1,1,1)
+                    car.scale.set(0.015, 0.015, 0.015); 
+                    
+                    car.rotation.y = Math.PI; // หมุนให้หันหน้าถูกทาง
                     car.position.set(0, 0, 0);
                     car.traverse(o => {
                         if (o.isMesh) {
@@ -503,8 +510,11 @@
                 },
                 undefined,
                 (err) => {
-                    console.error(err);
-                    loadingMsg.innerText = "โหลดรถไม่สำเร็จ";
+                    console.error('Error loading car:', err);
+                    loadingMsg.innerText = "โหลดไฟล์ 3D ไม่สำเร็จ (ใช้รถพื้นฐาน)";
+                    loadingMsg.style.color = "yellow";
+                    // รถพื้นฐานยังอยู่ ไม่ต้องทำอะไรเพิ่ม
+                    setTimeout(() => loadingMsg.style.display = 'none', 3000);
                 }
             );
         }
