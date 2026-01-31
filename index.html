@@ -701,12 +701,23 @@
         }
 
         function shiftManual(g) {
-            if(!manualState.clutch && manualState.engine) {
-                manualState.engine = false; manualState.rpm = 0; manualState.speed = 0;
-                showAlert('💥 เครื่องดับ! เปลี่ยนเกียร์ไม่เหยียบคลัตช์');
-            } else {
-                manualState.gear = (manualState.gear === g) ? 'N' : g;
+            // STRICT RULE: Must press clutch to shift gears every time
+            if (!manualState.clutch) {
+                if (manualState.engine) {
+                    // If engine is running and shift without clutch -> Stall
+                    manualState.engine = false; 
+                    manualState.rpm = 0; 
+                    manualState.speed = 0;
+                    showAlert('💥 เครื่องดับ! ต้องเหยียบคลัตช์เพื่อเปลี่ยนเกียร์');
+                } else {
+                    // If engine is off -> Just warn, don't change gear
+                    showAlert('⚠️ ต้องเหยียบคลัตช์ให้สุดก่อนเข้าเกียร์');
+                }
+                return; // Prevent gear change
             }
+
+            // Normal shift logic if clutch is pressed
+            manualState.gear = (manualState.gear === g) ? 'N' : g;
             updateManualUI();
         }
 
