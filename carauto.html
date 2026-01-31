@@ -204,9 +204,9 @@
 
         #message {
             position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%);
-            background: rgba(0,0,0,0.8); color: white; padding: 15px 30px;
-            border-radius: 30px; font-size: 24px; font-weight: bold; display: none; pointer-events: none;
-            white-space: nowrap; z-index: 100; border: 2px solid white;
+            background: rgba(255, 71, 87, 0.9); color: white; padding: 15px 30px;
+            border-radius: 30px; font-size: 20px; font-weight: bold; display: none; pointer-events: none;
+            white-space: nowrap; z-index: 100; border: 2px solid white; box-shadow: 0 5px 20px rgba(0,0,0,0.3);
         }
         
         #loading-msg {
@@ -527,11 +527,16 @@
             if (inputs.left) targetRot = -90;
             if (inputs.right) targetRot = 90;
             
-            steeringRot += (targetRot - steeringRot) * 0.1;
+            // Lighter feel: Increase interpolation speed slightly (0.15) for faster response
+            steeringRot += (targetRot - steeringRot) * 0.15;
             
             if (Math.abs(speed) > 0.5) {
+                // Stability: Reduce sensitivity at high speeds
                 let speedSensitivity = 1.0;
-                if (Math.abs(speed) > 80) speedSensitivity = 0.6; 
+                // At high speed, reduce steering impact to prevent spinning
+                if (Math.abs(speed) > 50) {
+                    speedSensitivity = Math.max(0.3, 1.0 - (Math.abs(speed) / 250));
+                }
                 
                 let turnAmount = (steeringRot / 90) * 0.045 * speedSensitivity;
                 
@@ -576,21 +581,14 @@
                 }
             });
 
-            // Obstacles (Cones) - Instant Game Over/Reset
-            obstacles.forEach(o => {
+            // Obstacles (Cones) - Instant Reset
+            for(let o of obstacles) {
                 if(car.position.distanceTo(o.position) < 2.5) {
-                    crashReset();
+                    // Instant Restart (No Message Delay)
+                    resetGame();
+                    return; // Stop checking
                 }
-            });
-        }
-
-        function crashReset() {
-            isPlaying = false;
-            showMsg("ชนกรวย! เริ่มใหม่...");
-            setTimeout(() => {
-                resetGame();
-                isPlaying = true;
-            }, 1000);
+            }
         }
 
         function updateUI() {
@@ -608,6 +606,15 @@
         }
 
         function setGear(mode) {
+            // Gear Safety Logic
+            // If speed > 5 km/h, prevent shifting to P or Reverse/Drive swap
+            if (Math.abs(speed) > 5) {
+                if (mode === 'P' || (gearMode === 'D' && mode === 'R') || (gearMode === 'R' && mode === 'D')) {
+                    showMsg("⚠ จอดรถให้สนิทก่อน!");
+                    return; 
+                }
+            }
+
             gearMode = mode;
             if (mode === 'P' || mode === 'N') gear = 0;
             else if (mode === 'R') gear = -1;
@@ -651,7 +658,7 @@
             const m = document.getElementById('message');
             m.innerText = txt;
             m.style.display = 'block';
-            setTimeout(() => m.style.display='none', 1000);
+            setTimeout(() => m.style.display='none', 1500);
         }
 
         function animate() {
