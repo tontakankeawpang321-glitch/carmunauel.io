@@ -13,30 +13,27 @@
             touch-action: none; /* ห้าม Zoom/Scroll */
             -webkit-user-select: none; /* ห้ามเลือก Text */
             user-select: none;
-            /* รองรับ Safe Area สำหรับมือถือจอมีรอยบาก */
             padding-left: env(safe-area-inset-left);
             padding-right: env(safe-area-inset-right);
             padding-bottom: env(safe-area-inset-bottom);
         }
         
-        /* UI Overlay */
         #game-ui {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             pointer-events: none; display: flex; flex-direction: column; justify-content: space-between;
         }
 
-        /* Top Bar (Dashboard) */
         #top-bar {
-            background: rgba(255, 255, 255, 0.8);
+            background: rgba(255, 255, 255, 0.85);
             padding: 10px 20px;
             margin: 15px;
-            margin-top: max(15px, env(safe-area-inset-top)); /* หลบ Notch ด้านบน */
+            margin-top: max(15px, env(safe-area-inset-top));
             border-radius: 20px;
             display: flex; justify-content: space-between; align-items: center;
             box-shadow: 0 4px 15px rgba(0,0,0,0.05);
             pointer-events: auto;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.5);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.6);
         }
         .speed-box { color: #333; }
         .speed-label { font-size: 12px; color: #888; margin-bottom: 2px; }
@@ -51,32 +48,31 @@
         }
         #btn-restart:active { transform: scale(0.95); }
 
-        /* Controls Area */
         #controls {
             pointer-events: auto;
             display: flex; justify-content: space-between; align-items: flex-end;
             padding: 0 20px 30px 20px; 
-            height: 50%; /* ใช้พื้นที่ครึ่งล่าง */
+            height: 50%;
             position: relative;
             box-sizing: border-box;
             width: 100%;
         }
 
-        /* --- Gear Selector (PRND) --- */
+        /* --- Gear Selector --- */
         .gear-container {
-            background: rgba(255, 255, 255, 0.2); 
+            background: rgba(255, 255, 255, 0.25); 
             padding: 8px;
             border-radius: 15px;
             display: flex; flex-direction: column; gap: 8px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
             z-index: 20;
-            backdrop-filter: blur(8px);
-            border: 1px solid rgba(255,255,255,0.3);
-            margin-bottom: 10px; /* ดันขึ้นจากขอบล่างนิดหน่อย */
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.4);
+            margin-bottom: 10px;
         }
         .gear-btn {
             width: 55px; height: 45px;
-            background: rgba(62, 70, 86, 0.8);
+            background: rgba(62, 70, 86, 0.85);
             color: white;
             border-radius: 10px;
             display: flex; justify-content: center; align-items: center;
@@ -88,23 +84,24 @@
         .gear-active {
             background: #ffffff;
             color: #2f3542;
-            box-shadow: 0 0 15px rgba(255,255,255,0.6);
+            box-shadow: 0 0 15px rgba(255,255,255,0.7);
             font-weight: 900;
             transform: scale(1.05);
+            border-color: white;
         }
         #btn-p.gear-active { color: #ff4757; }
         #btn-r.gear-active { color: #ffa502; }
         #btn-n.gear-active { color: #2ed573; }
         #btn-d.gear-active { color: #3742fa; }
 
-        /* --- Steering Wheel --- */
+        /* --- Realistic Steering Wheel --- */
         .steering-container {
             position: absolute;
-            bottom: 30px;
+            bottom: 40px;
             left: 50%;
             transform: translateX(-50%);
-            width: 140px; 
-            height: 140px;
+            width: 150px; 
+            height: 150px;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -113,28 +110,67 @@
         #steering-wheel {
             width: 100%;
             height: 100%;
-            background: radial-gradient(circle, #444 30%, #222 70%);
+            /* หนังสีดำด้าน */
+            background: radial-gradient(circle at 30% 30%, #4a4a4a, #1a1a1a);
             border-radius: 50%;
-            border: 6px solid #555;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+            /* ขอบหนาขึ้น */
+            border: 10px solid #2d3436; 
+            box-shadow: 
+                inset 2px 2px 5px rgba(255,255,255,0.1), /* แสงกระทบขอบ */
+                inset -2px -2px 5px rgba(0,0,0,0.5), /* เงาลึก */
+                0 15px 35px rgba(0,0,0,0.4); /* เงาตกกระทบพื้น */
             position: relative;
             transition: transform 0.1s ease-out;
+            box-sizing: border-box;
         }
+        /* Red Marker */
         #steering-wheel::after {
             content: '';
-            position: absolute; top: 0; left: 50%; transform: translateX(-50%);
-            width: 8px; height: 20px; background: #ff4757; border-radius: 0 0 4px 4px;
+            position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
+            width: 10px; height: 18px; background: #ff4757; border-radius: 2px;
+            box-shadow: 0 0 4px rgba(255, 71, 87, 0.6);
+            z-index: 5;
         }
+        /* Center Cap (Horn) */
         #steering-wheel::before {
             content: '';
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 40px; height: 40px; background: #666; border-radius: 50%; border: 2px solid #888; z-index: 2;
+            width: 50px; height: 50px; 
+            background: radial-gradient(circle at 30% 30%, #555, #222);
+            border-radius: 50%; 
+            border: 1px solid #666; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+            z-index: 3;
         }
+        
+        /* ก้านพวงมาลัย (Spokes) */
+        .wheel-spoke {
+            position: absolute;
+            background: #2d3436;
+            z-index: 2;
+            box-shadow: inset 0 0 2px rgba(0,0,0,0.5);
+        }
+        .spoke-left { 
+            top: 50%; left: 0; width: 45%; height: 14px; 
+            transform: translateY(-50%); 
+            background: linear-gradient(to right, #2d3436, #444);
+        }
+        .spoke-right { 
+            top: 50%; right: 0; width: 45%; height: 14px; 
+            transform: translateY(-50%); 
+            background: linear-gradient(to left, #2d3436, #444);
+        }
+        .spoke-bottom { 
+            bottom: 0; left: 50%; width: 14px; height: 45%; 
+            transform: translateX(-50%); 
+            background: linear-gradient(to top, #2d3436, #444);
+        }
+
         #steering-touch-left, #steering-touch-right {
-            position: absolute; top: -20px; bottom: -20px; width: 60%; cursor: pointer;
+            position: absolute; top: -30px; bottom: -30px; width: 60%; cursor: pointer; z-index: 20;
         }
-        #steering-touch-left { left: -20px; }
-        #steering-touch-right { right: -20px; }
+        #steering-touch-left { left: -30px; }
+        #steering-touch-right { right: -30px; }
 
         /* --- Pedals --- */
         .pedals-group {
@@ -143,28 +179,27 @@
             margin-bottom: 10px;
         }
         .pedal {
-            background: rgba(47, 53, 66, 0.7);
+            background: rgba(47, 53, 66, 0.8);
             border-radius: 12px;
-            box-shadow: 0 5px 10px rgba(0,0,0,0.2);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.2);
             display: flex; flex-direction: column; justify-content: flex-end; align-items: center;
             padding-bottom: 10px;
             color: #d1d8e0; font-weight: bold; font-size: 12px;
             transition: transform 0.1s, background 0.1s;
             cursor: pointer;
             backdrop-filter: blur(5px);
-            border: 1px solid rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.15);
         }
         #pedal-brake { width: 75px; height: 85px; }
-        #pedal-gas { width: 55px; height: 130px; background: rgba(0, 0, 0, 0.75); }
+        #pedal-gas { width: 55px; height: 130px; background: rgba(0, 0, 0, 0.85); }
 
         .pedal-pressed {
             transform: scale(0.95) translateY(5px);
-            background: rgba(87, 96, 111, 0.9) !important;
+            background: rgba(87, 96, 111, 0.95) !important;
             color: white;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
         }
 
-        /* Start Screen */
         #start-screen {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(255,255,255,0.95); z-index: 50;
@@ -192,32 +227,34 @@
 
         /* --- Responsive Styles --- */
         
-        /* Portrait Mode (Vertical) - ปรับขนาดให้พอดีจอแคบ */
+        /* Portrait Mode (Vertical) */
         @media (orientation: portrait) {
             #controls { 
-                padding: 0 10px 40px 10px; /* ลด padding ด้านข้าง */
+                padding: 0 10px 40px 10px; 
             }
             .gear-btn { 
-                width: 45px; height: 40px; font-size: 16px; /* ลดขนาดปุ่มเกียร์ */
+                width: 45px; height: 40px; font-size: 16px; 
             }
             .gear-container {
-                gap: 6px; padding: 6px; margin-bottom: 20px; /* ขยับขึ้นหลบพวงมาลัยถ้าจำเป็น */
+                gap: 6px; padding: 6px; margin-bottom: 20px; 
             }
             .steering-container {
-                width: 120px; height: 120px; bottom: 30px; /* ลดขนาดพวงมาลัย */
+                width: 130px; height: 130px; 
+                /* ดันขึ้นสูงอีกตามคำขอ "สูงขึ้นมาหน่อยบนมือถือ" */
+                bottom: 200px; 
             }
-            #pedal-brake { width: 65px; height: 80px; } /* ลดขนาดเบรก */
-            #pedal-gas { width: 50px; height: 120px; } /* ลดขนาดคันเร่ง */
+            #pedal-brake { width: 65px; height: 80px; } 
+            #pedal-gas { width: 50px; height: 120px; } 
             .pedals-group { gap: 8px; margin-bottom: 20px; }
             
             #top-bar { margin: 10px 15px; }
         }
 
-        /* Landscape Mode - จอเตี้ย */
+        /* Landscape Mode */
         @media (max-height: 500px) {
             .gear-btn { width: 45px; height: 40px; font-size: 16px; }
             .gear-container { gap: 5px; padding: 5px; }
-            .steering-container { width: 120px; height: 120px; bottom: 10px; }
+            .steering-container { width: 120px; height: 120px; bottom: 20px; }
             #pedal-brake { width: 70px; height: 80px; }
             #pedal-gas { width: 55px; height: 120px; }
             #top-bar { margin: 5px 15px; padding: 5px 15px; }
@@ -256,7 +293,11 @@
             </div>
 
             <div class="steering-container">
-                <div id="steering-wheel"></div>
+                <div id="steering-wheel">
+                    <div class="wheel-spoke spoke-left"></div>
+                    <div class="wheel-spoke spoke-right"></div>
+                    <div class="wheel-spoke spoke-bottom"></div>
+                </div>
                 <div id="steering-touch-left"></div>
                 <div id="steering-touch-right"></div>
             </div>
@@ -300,7 +341,6 @@
             camera.position.set(0, 6, -12);
 
             renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
-            // ปรับPixelRatio เพื่อความคมชัดบนมือถือ
             renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
             renderer.setSize(window.innerWidth, window.innerHeight);
             renderer.shadowMap.enabled = true;
@@ -312,7 +352,6 @@
             const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
             dirLight.position.set(20, 50, 20);
             dirLight.castShadow = true;
-            // Optimize shadow map for mobile
             dirLight.shadow.mapSize.width = 1024;
             dirLight.shadow.mapSize.height = 1024;
             scene.add(dirLight);
@@ -346,14 +385,13 @@
             loadingMsg.style.display = 'block';
 
             // ใช้ Model ตัวอย่างจาก Three.js (Ferrari)
-            const modelUrl = 'https://cdn.jsdelivr.net/gh/mrdoob/three.js@master/examples/models/gltf/Ferrari.glb'; 
+            const modelUrl = '2025_bmw_m4_competition.glb'; 
 
             loader.load(modelUrl, 
                 (gltf) => {
                     if(car) scene.remove(car);
                     car = gltf.scene;
 
-                    // Enable Shadows
                     car.traverse(o => {
                         if (o.isMesh) {
                             o.castShadow = true;
@@ -361,22 +399,20 @@
                         }
                     });
 
-                    // Auto Scale
                     const box = new THREE.Box3().setFromObject(car);
                     const size = box.getSize(new THREE.Vector3());
                     const scale = 3.5 / Math.max(size.x, size.y, size.z);
                     car.scale.setScalar(scale);
 
-                    // Center & Position
                     car.updateMatrixWorld(true);
                     box.setFromObject(car);
                     const center = box.getCenter(new THREE.Vector3());
                     car.position.x -= center.x;
                     car.position.z -= center.z;
-                    car.position.y -= box.min.y; // Ground level
-                    car.position.y += 0.05; // Lift slightly
+                    car.position.y -= box.min.y; 
+                    car.position.y += 0.05; 
 
-                    car.rotation.y = Math.PI; // Face forward
+                    car.rotation.y = Math.PI; 
 
                     scene.add(car);
                     loadingMsg.style.display = 'none';
@@ -386,7 +422,6 @@
                     console.error('Error loading car:', err);
                     loadingMsg.innerText = "โหลดโมเดลไม่สำเร็จ (ใช้รถพื้นฐาน)";
                     setTimeout(() => loadingMsg.style.display = 'none', 3000);
-                    // รถProceduralCar ยังอยู่ ใช้งานได้เลย
                 }
             );
         }
@@ -480,14 +515,22 @@
                 speed *= 0.8; 
             }
 
+            // Steering Logic
             let targetRot = 0;
             if (inputs.left) targetRot = -90;
             if (inputs.right) targetRot = 90;
             
-            steeringRot += (targetRot - steeringRot) * 0.2;
+            // Smoothly rotate visual wheel (0.1 for smoother/lighter feel)
+            steeringRot += (targetRot - steeringRot) * 0.1;
             
             if (Math.abs(speed) > 0.5) {
-                let turnAmount = (steeringRot / 90) * 0.04;
+                // Stability: Reduce sensitivity at high speeds
+                let speedSensitivity = 1.0;
+                if (Math.abs(speed) > 80) speedSensitivity = 0.6; // More stable at high speed
+                
+                // Lighter/Responsive feel at low speed
+                let turnAmount = (steeringRot / 90) * 0.045 * speedSensitivity;
+                
                 if (speed < 0) turnAmount = -turnAmount;
                 carAngle -= turnAmount;
             }
@@ -592,7 +635,6 @@
             spawnProps();
             setGear('P');
             isPlaying = true;
-            // Fullscreen request attempt
             if (document.documentElement.requestFullscreen) {
                 document.documentElement.requestFullscreen().catch(err => console.log(err));
             }
