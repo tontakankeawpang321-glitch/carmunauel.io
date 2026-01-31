@@ -49,12 +49,14 @@
         }
 
         /* Upper Control Row: Steering & Gear */
+        /* ปรับตำแหน่งให้ลงมาด้านล่างใกล้แป้นเหยียบมากขึ้น */
         .control-row-upper {
             flex: 1.2;
             display: flex;
-            align-items: center;
+            align-items: flex-end; /* เปลี่ยนจาก center เป็น flex-end เพื่อดันลงล่าง */
             justify-content: space-around;
             padding: 0 10px;
+            padding-bottom: 10px; /* เว้นระยะห่างจากแถวล่างเล็กน้อย */
         }
 
         /* Lower Control Row: Pedals */
