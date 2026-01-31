@@ -3,967 +3,778 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Mini Manual Vertical Stick</title>
+    <title>Driving School Sim - Mobile App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
-        body { margin: 0; overflow: hidden; font-family: 'Kanit', sans-serif; background-color: #333; touch-action: none; }
+        body { font-family: 'Kanit', sans-serif; background-color: #f3f4f6; -webkit-tap-highlight-color: transparent; }
         
-        /* UI Overlay */
-        #game-ui {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-
-        /* Dashboard (Top) */
-        #dashboard {
-            background: rgba(0, 0, 0, 0.6);
-            color: white;
-            padding: 10px;
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            font-size: 14px;
-            border-bottom: 2px solid #555;
-            height: 10%;
-            box-sizing: border-box;
-        }
-        .stat-box { text-align: center; }
-        .big-text { font-size: 20px; font-weight: bold; color: #ffcc00; }
-        #rpm-bar-container { width: 80px; height: 8px; background: #333; border: 1px solid #fff; margin-top: 5px; }
-        #rpm-bar { width: 0%; height: 100%; background: lime; transition: width 0.1s; }
-
-        /* Controls Area (Bottom) - VERTICAL LAYOUT */
-        #controls {
-            pointer-events: auto;
-            display: flex;
-            flex-direction: column;
-            width: 100%;
-            height: 55%;
-            background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0) 100%);
-        }
-
-        /* Upper Control Row: Steering & Gear */
-        /* ปรับตำแหน่งให้ลงมาด้านล่างใกล้แป้นเหยียบมากขึ้น */
-        .control-row-upper {
-            flex: 1.2;
-            display: flex;
-            align-items: flex-end; /* ดันลงล่าง */
-            justify-content: space-around;
-            padding: 0 10px;
-            padding-bottom: 10px; 
-        }
-
-        /* Lower Control Row: Pedals */
-        .control-row-lower {
-            flex: 1;
-            display: flex;
-            align-items: flex-end;
-            justify-content: space-evenly;
-            padding-bottom: 20px;
-        }
-
-        /* --- Steering Wheel --- */
-        #steering-container {
-            width: 130px;
-            height: 130px;
-            position: relative;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        #steering-wheel {
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            background: #222;
-            border: 6px solid #555;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
-            position: relative;
-            transition: transform 0.1s ease-out;
-            box-sizing: border-box;
-        }
-        #steering-wheel::before {
-            content: ''; position: absolute; top: 50%; left: 50%; 
-            transform: translate(-50%, -50%);
-            width: 30px; height: 30px; background: #444; border-radius: 50%; border: 2px solid #777; z-index: 2;
-        }
-        #steering-wheel::after {
-            content: ''; position: absolute; top: 0; left: 50%; 
-            transform: translateX(-50%);
-            width: 10px; height: 15px; background: #dc143c; z-index: 1;
-        }
-        .spoke-h {
-            position: absolute; top: 50%; left: 0; width: 100%; height: 15px; 
-            background: #444; transform: translateY(-50%); border-top: 1px solid #666;
-        }
-        .spoke-v {
-            position: absolute; bottom: 0; left: 50%; width: 15px; height: 50%; 
-            background: #444; transform: translateX(-50%); border-left: 1px solid #666;
-        }
-
-        .steering-touch-zone {
-            position: absolute;
-            top: 0;
-            width: 50%;
-            height: 100%;
-            z-index: 10;
-        }
-        #steer-left-zone { left: 0; }
-        #steer-right-zone { right: 0; }
-
-        /* --- Realistic Stick Shifter --- */
-        #gear-area {
-            width: 140px;
-            height: 140px;
-            position: relative;
-            background: #1a1a1a;
-            border-radius: 15px;
-            border: 2px solid #444;
-            box-shadow: inset 0 0 20px black;
-            overflow: hidden;
-        }
-
-        /* The Shifter Gate (Lines) */
-        .shifter-gate-bg {
-            position: absolute;
-            top: 15%; left: 15%; right: 15%; bottom: 15%;
-            pointer-events: none;
-        }
-        /* Vertical slots */
-        .slot-line { position: absolute; background: #000; width: 12px; height: 100%; top: 0; border-radius: 6px; box-shadow: inset 1px 1px 2px #333; }
-        .slot-left { left: 0; }
-        .slot-mid { left: 50%; transform: translateX(-50%); }
-        .slot-right { right: 0; }
-        /* Horizontal neutral path */
-        .slot-horz {
-            position: absolute; background: #000; height: 12px; width: 100%;
-            top: 50%; transform: translateY(-50%); border-radius: 6px;
-            box-shadow: inset 1px 1px 2px #333;
-        }
-
-        /* Gear Labels */
-        .gear-label {
-            position: absolute; color: #888; font-size: 12px; font-weight: bold; pointer-events: none;
-        }
+        /* Custom Scrollbar for hidden feel */
+        ::-webkit-scrollbar { width: 0px; background: transparent; }
         
-        /* The Moving Stick Knob */
-        #shifter-knob {
-            width: 40px;
-            height: 40px;
-            background: radial-gradient(circle at 30% 30%, #666, #111);
-            border-radius: 50%;
-            position: absolute;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            box-shadow: 0 5px 10px rgba(0,0,0,0.8);
-            z-index: 5;
-            transition: all 0.15s ease-out; /* Smooth slide animation */
-            border: 2px solid #888;
-        }
-        #shifter-knob::after {
-            /* Shaft reflection */
-            content: ''; position: absolute; top: 10px; left: 10px; width: 10px; height: 10px;
-            background: rgba(255,255,255,0.2); border-radius: 50%;
-        }
+        .pedal { transition: transform 0.1s, filter 0.2s; cursor: pointer; touch-action: manipulation; }
+        .pedal:active, .pedal.pressed { transform: translateY(8px) scale(0.95); filter: brightness(1.2); }
+        .pedal.locked { filter: brightness(1.2) sepia(1) hue-rotate(-50deg) saturate(3); transform: translateY(8px); border-color: #f59e0b; }
 
-        /* Invisible Touch Zones for Gears */
-        .gear-touch-zone {
-            position: absolute;
-            width: 33%;
-            height: 40%;
-            z-index: 10;
-        }
-        /* Top Row */
-        .zone-1 { top: 0; left: 0; }
-        .zone-3 { top: 0; left: 33%; width: 34%; }
-        .zone-5 { top: 0; right: 0; }
-        /* Bottom Row */
-        .zone-2 { bottom: 0; left: 0; }
-        .zone-4 { bottom: 0; left: 33%; width: 34%; }
-        .zone-R { bottom: 0; right: 0; }
-        /* Neutral (Center Strip) */
-        .zone-N { top: 40%; height: 20%; width: 100%; left: 0; z-index: 9;}
+        .gear-btn { transition: all 0.2s; touch-action: manipulation; }
+        .gear-btn.active { background-color: #2563eb; color: white; transform: scale(1.1); box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4); }
 
-        /* --- Pedals --- */
-        .pedal {
-            width: 50px; /* Reduced width to fit 4 pedals */
-            height: 90px;
-            border-radius: 8px;
-            border: 2px solid #bbb;
-            display: flex;
-            align-items: flex-end;
-            justify-content: center;
-            padding-bottom: 8px;
-            font-weight: bold;
-            color: white;
-            font-size: 10px; /* Smaller font */
-            user-select: none;
-            transition: transform 0.1s;
-            box-shadow: 0 4px 0 #000;
-            margin: 0 2px;
-        }
-        .pedal:active { transform: scale(0.95) translateY(4px); box-shadow: 0 0 0 #000; }
-
-        #handbrake-btn { background: linear-gradient(to bottom, #444, #888); border-color: #888; height: 70px; align-self: flex-end; margin-right: 10px;}
-        #handbrake-btn.active-brake { background: linear-gradient(to bottom, #cc3333, #ff0000); border-color: red; box-shadow: 0 0 10px red; }
-
-        #clutch { background: linear-gradient(to bottom, #444, #3366cc); }
-        #brake { background: linear-gradient(to bottom, #444, #cc3333); height: 80px; width: 50px; }
-        #gas { background: linear-gradient(to bottom, #444, #33cc33); }
-
-        .pedal-pressed { border-color: yellow !important; filter: brightness(1.2); transform: scale(0.95) translateY(4px); box-shadow: 0 0 0 #000; }
-        /* Locked visual for toggle clutch */
-        .clutch-locked { border-color: cyan !important; transform: scale(0.95) translateY(4px); box-shadow: 0 0 0 #000; filter: brightness(1.3); }
-
-        /* Messages */
-        #message {
-            position: absolute;
-            top: 40%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            color: #ff3333;
-            font-size: 22px;
-            font-weight: bold;
-            text-shadow: 1px 1px black;
-            display: none;
-            pointer-events: none;
-            text-align: center;
-            background: rgba(0,0,0,0.8);
-            padding: 15px;
-            border-radius: 8px;
-            z-index: 20;
-            width: 80%;
-        }
+        .needle { transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1); transform-origin: bottom center; }
         
-        #loading-msg {
-            position: absolute; top: 12%; width: 100%; text-align: center;
-            color: yellow; font-size: 12px; pointer-events: none; display: none;
-        }
+        .nav-item.active { color: #2563eb; }
+        .nav-item.active i { transform: translateY(-2px); }
+        
+        .sub-tab { transition: all 0.3s; border-bottom: 2px solid transparent; opacity: 0.6; }
+        .sub-tab.active { border-color: #2563eb; color: #2563eb; opacity: 1; font-weight: 600; }
 
-        /* Start Screen */
-        #start-screen {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9); color: white;
-            display: flex; flex-direction: column;
-            align-items: center; justify-content: center;
-            z-index: 50;
-        }
-        button.start-btn {
-            padding: 15px 50px; font-size: 20px; background: #ffcc00;
-            border: none; border-radius: 30px; cursor: pointer; font-weight: bold; margin-top: 20px;
-        }
+        /* Animations */
+        .fade-in { animation: fadeIn 0.3s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Disable select */
+        .no-select { user-select: none; -webkit-user-select: none; }
+        
+        /* Card Hover */
+        .external-card:active { transform: scale(0.98); }
     </style>
-    <!-- Import fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;600&display=swap" rel="stylesheet">
-    <!-- Import Three.js -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <!-- Import GLTFLoader -->
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
 </head>
-<body>
+<body class="bg-gray-100 h-screen flex flex-col overflow-hidden text-gray-800">
 
-    <!-- Game Container -->
-    <div id="container"></div>
-
-    <!-- UI Overlay -->
-    <div id="game-ui">
-        <div id="dashboard">
-            <div class="stat-box">
-                <div>GEAR</div>
-                <div id="gear-display" class="big-text">N</div>
+    <!-- Top Header -->
+    <header class="bg-white shadow-sm px-4 py-3 flex justify-between items-center z-20 shrink-0">
+        <div class="flex items-center gap-2">
+            <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white">
+                <i class="fas fa-car-side"></i>
             </div>
-            <div class="stat-box">
-                <div>RPM</div>
-                <div id="rpm-bar-container"><div id="rpm-bar"></div></div>
-            </div>
-            <div class="stat-box">
-                <div>SPEED</div>
-                <div class="big-text"><span id="speed-display">0</span></div>
-            </div>
-            <div class="stat-box">
-                <div>SCORE</div>
-                <div id="score-display" class="big-text">0</div>
-            </div>
+            <h1 class="font-bold text-lg text-gray-800 tracking-tight">Driving Sim</h1>
         </div>
+        <a href="https://www.dlt.go.th/" target="_blank" class="text-blue-600 text-xs font-semibold bg-blue-50 px-3 py-1 rounded-full">
+            DLT เว็บกรมขนส่งฯ
+        </a>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 overflow-y-auto relative bg-gray-50 pb-20" id="main-container">
         
-        <div id="loading-msg">กำลังโหลดรถสปอร์ต...</div>
-        <div id="message"></div>
-
-        <div id="controls">
-            <!-- UPPER ROW: Steering & Gear -->
-            <div class="control-row-upper">
-                <!-- Steering Wheel -->
-                <div id="steering-container">
-                    <div id="steering-wheel">
-                        <div class="spoke-h"></div>
-                        <div class="spoke-v"></div>
-                    </div>
-                    <div id="steer-left-zone" class="steering-touch-zone"></div>
-                    <div id="steer-right-zone" class="steering-touch-zone"></div>
-                </div>
-
-                <!-- Realistic Stick Shifter -->
-                <div id="gear-area">
-                    <!-- Background Lines (Gate) -->
-                    <div class="shifter-gate-bg">
-                        <div class="slot-horz"></div>
-                        <div class="slot-line slot-left"></div>
-                        <div class="slot-line slot-mid"></div>
-                        <div class="slot-line slot-right"></div>
-                    </div>
-                    
-                    <!-- Labels -->
-                    <div class="gear-label" style="top:5px; left:18px;">1</div>
-                    <div class="gear-label" style="bottom:5px; left:18px;">2</div>
-                    <div class="gear-label" style="top:5px; left:50%; transform:translateX(-50%);">3</div>
-                    <div class="gear-label" style="bottom:5px; left:50%; transform:translateX(-50%);">4</div>
-                    <div class="gear-label" style="top:5px; right:18px;">5</div>
-                    <div class="gear-label" style="bottom:5px; right:18px; color:#d44;">R</div>
-
-                    <!-- The Moving Stick -->
-                    <div id="shifter-knob"></div>
-
-                    <!-- Touch Zones -->
-                    <div class="gear-touch-zone zone-1" data-gear="1"></div>
-                    <div class="gear-touch-zone zone-2" data-gear="2"></div>
-                    <div class="gear-touch-zone zone-3" data-gear="3"></div>
-                    <div class="gear-touch-zone zone-4" data-gear="4"></div>
-                    <div class="gear-touch-zone zone-5" data-gear="5"></div>
-                    <div class="gear-touch-zone zone-R" data-gear="-1"></div>
-                    <div class="gear-touch-zone zone-N" data-gear="0"></div>
+        <!-- SECTION 1: KNOWLEDGE (ความรู้) -->
+        <div id="section-knowledge" class="fade-in min-h-full">
+            <!-- Sub Navigation for Knowledge -->
+            <div class="sticky top-0 bg-white shadow-sm z-10 px-4 pt-2 overflow-x-auto whitespace-nowrap no-scrollbar">
+                <div class="flex gap-6 pb-2">
+                    <button onclick="switchSubTab('knowledge', 'license')" id="tab-license" class="sub-tab active pb-2">ขั้นตอนใบขับขี่</button>
+                    <button onclick="switchSubTab('knowledge', 'manual-info')" id="tab-manual-info" class="sub-tab pb-2">เกียร์ธรรมดา</button>
+                    <button onclick="switchSubTab('knowledge', 'auto-info')" id="tab-auto-info" class="sub-tab pb-2">เกียร์ออโต้</button>
+                    <button onclick="switchSubTab('knowledge', 'moto-info')" id="tab-moto-info" class="sub-tab pb-2">มอเตอร์ไซค์</button>
+                    <button onclick="switchSubTab('knowledge', 'bike-info')" id="tab-bike-info" class="sub-tab pb-2">จักรยาน</button>
                 </div>
             </div>
 
-            <!-- LOWER ROW: Pedals -->
-            <div class="control-row-lower">
-                <div id="handbrake-btn" class="pedal">เบรกมือ</div>
-                <div id="clutch" class="pedal">คลัตช์</div>
-                <div id="brake" class="pedal">เบรก</div>
-                <div id="gas" class="pedal">คันเร่ง</div>
+            <div class="p-4 space-y-4">
+                
+                <!-- 1. License Content -->
+                <div id="content-license" class="knowledge-content">
+                    <div class="bg-gradient-to-r from-blue-600 to-blue-800 rounded-2xl p-6 text-white shadow-lg mb-6">
+                        <h2 class="text-2xl font-bold mb-2">ทำใบขับขี่ไม่ยาก!</h2>
+                        <p class="opacity-90 text-sm">รวมขั้นตอนตั้งแต่เตรียมเอกสารจนถึงสอบผ่าน</p>
+                    </div>
+
+                    <div class="grid gap-4 md:grid-cols-2">
+                        <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+                            <div class="flex items-center gap-3 mb-3 text-blue-600 font-bold">
+                                <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">1</div>
+                                <span>เตรียมเอกสาร</span>
+                            </div>
+                            <ul class="text-sm text-gray-600 space-y-2 ml-11 list-disc">
+                                <li>บัตรประชาชนตัวจริง</li>
+                                <li>ใบรับรองแพทย์ (ไม่เกิน 1 เดือน)</li>
+                            </ul>
+                        </div>
+
+                        <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+                            <div class="flex items-center gap-3 mb-3 text-purple-600 font-bold">
+                                <div class="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center">2</div>
+                                <span>ทดสอบสมรรถภาพ</span>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2 text-xs text-gray-500 ml-11">
+                                <div class="bg-gray-50 p-2 rounded text-center">ตาบอดสี</div>
+                                <div class="bg-gray-50 p-2 rounded text-center">สายตาทางลึก</div>
+                                <div class="bg-gray-50 p-2 rounded text-center">สายตาทางกว้าง</div>
+                                <div class="bg-gray-50 p-2 rounded text-center">ปฏิกิริยาเท้า</div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 md:col-span-2">
+                             <div class="flex items-center gap-3 mb-3 text-orange-600 font-bold">
+                                <div class="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center">3</div>
+                                <span>สอบปฏิบัติ (รถยนต์)</span>
+                            </div>
+                            <div class="flex gap-4 overflow-x-auto pb-2">
+                                <div class="min-w-[140px] bg-gray-50 p-3 rounded-lg text-center border border-gray-200">
+                                    <i class="fas fa-arrows-alt-v text-2xl text-gray-400 mb-2"></i>
+                                    <div class="font-bold text-sm">เดินหน้า-ถอยหลัง</div>
+                                    <div class="text-[10px] text-gray-400">ห้ามชนหลัก</div>
+                                </div>
+                                <div class="min-w-[140px] bg-gray-50 p-3 rounded-lg text-center border border-gray-200">
+                                    <i class="fas fa-parking text-2xl text-gray-400 mb-2"></i>
+                                    <div class="font-bold text-sm">จอดเทียบทางเท้า</div>
+                                    <div class="text-[10px] text-gray-400">ห่างไม่เกิน 25cm</div>
+                                </div>
+                                <div class="min-w-[140px] bg-gray-50 p-3 rounded-lg text-center border border-gray-200">
+                                    <i class="fas fa-reply text-2xl text-gray-400 mb-2"></i>
+                                    <div class="font-bold text-sm">ถอยเข้าซอง</div>
+                                    <div class="text-[10px] text-gray-400">เปลี่ยนเกียร์ < 7 ครั้ง</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. Manual Info (New) -->
+                <div id="content-manual-info" class="knowledge-content hidden">
+                    <div class="bg-blue-600 rounded-2xl p-6 text-white shadow-lg mb-6">
+                        <i class="fas fa-cogs text-4xl mb-2 opacity-80"></i>
+                        <h2 class="text-2xl font-bold mb-1">เทคนิคเกียร์ธรรมดา</h2>
+                        <p class="opacity-90 text-sm">ขับสนุก คุมรถได้ดั่งใจ</p>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-xl shadow-sm mb-4">
+                        <h3 class="font-bold text-lg mb-4 text-blue-800 border-b pb-2">หัวใจสำคัญ: "คลัตช์" (Clutch)</h3>
+                        <div class="flex gap-4 items-center mb-4">
+                            <div class="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center text-2xl">
+                                🦵
+                            </div>
+                            <div class="text-sm text-gray-600">
+                                <p><b>เมื่อไหร่ต้องเหยียบ?</b> ทุกครั้งที่สตาร์ทรถ, เปลี่ยนเกียร์, หรือกำลังจะจอดสนิท</p>
+                                <p class="mt-1"><b>เมื่อไหร่ต้องปล่อย?</b> เมื่อต้องการให้รถเคลื่อนที่ (ปล่อยช้าๆ) หรือเมื่อเปลี่ยนเกียร์เสร็จแล้ว</p>
+                            </div>
+                        </div>
+                        <div class="bg-blue-50 p-4 rounded-lg text-sm text-blue-800">
+                            <i class="fas fa-lightbulb text-yellow-500 mr-2"></i> <b>ทริค:</b> การออกตัวให้ปล่อยคลัตช์ช้าๆ จนถึงจุดที่รถเริ่มสั่น (Biting Point) แล้วค่อยเติมคันเร่ง รถจะไม่ดับ
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-xl shadow-sm">
+                        <h3 class="font-bold text-lg mb-4 text-blue-800 border-b pb-2">ตำแหน่งเกียร์</h3>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="text-center p-3 border rounded-lg">
+                                <div class="font-bold text-xl text-gray-700">1 - 2</div>
+                                <div class="text-xs text-gray-500">ออกตัว / ขึ้นทางชัน / รถติด</div>
+                            </div>
+                            <div class="text-center p-3 border rounded-lg">
+                                <div class="font-bold text-xl text-gray-700">3 - 4</div>
+                                <div class="text-xs text-gray-500">ขับขี่ทั่วไปในเมือง</div>
+                            </div>
+                            <div class="text-center p-3 border rounded-lg">
+                                <div class="font-bold text-xl text-gray-700">5</div>
+                                <div class="text-xs text-gray-500">ทางไกล / ความเร็วสูง</div>
+                            </div>
+                             <div class="text-center p-3 border rounded-lg bg-red-50 border-red-100">
+                                <div class="font-bold text-xl text-red-600">R</div>
+                                <div class="text-xs text-red-400">เกียร์ถอยหลัง (จอดสนิทก่อน)</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. Auto Info (New) -->
+                <div id="content-auto-info" class="knowledge-content hidden">
+                    <div class="bg-green-600 rounded-2xl p-6 text-white shadow-lg mb-6">
+                        <i class="fas fa-magic text-4xl mb-2 opacity-80"></i>
+                        <h2 class="text-2xl font-bold mb-1">รู้จักเกียร์ออโต้</h2>
+                        <p class="opacity-90 text-sm">ขับง่าย สะดวกสบาย</p>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-xl shadow-sm mb-4">
+                        <h3 class="font-bold text-lg mb-4 text-green-800 border-b pb-2">รหัสลับ P-R-N-D</h3>
+                        <div class="space-y-3">
+                            <div class="flex items-center gap-4">
+                                <div class="w-10 h-10 bg-gray-800 text-white rounded font-bold flex items-center justify-center">P</div>
+                                <div>
+                                    <div class="font-bold text-sm">Park (จอด)</div>
+                                    <div class="text-xs text-gray-500">ใช้เมื่อจอดรถสนิทและจะลงจากรถ รถจะถูกล็อคไม่ให้ไหล</div>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-4">
+                                <div class="w-10 h-10 bg-gray-800 text-white rounded font-bold flex items-center justify-center">R</div>
+                                <div>
+                                    <div class="font-bold text-sm">Reverse (ถอย)</div>
+                                    <div class="text-xs text-gray-500">เกียร์ถอยหลัง *ต้องเหยียบเบรกให้สนิทก่อนเข้าเกียร์นี้</div>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-4">
+                                <div class="w-10 h-10 bg-gray-800 text-white rounded font-bold flex items-center justify-center">N</div>
+                                <div>
+                                    <div class="font-bold text-sm">Neutral (ว่าง)</div>
+                                    <div class="text-xs text-gray-500">เกียร์ว่าง เข็นรถได้ ใช้เมื่อจอดติดไฟแดงนานๆ หรือจอดซ้อนคัน</div>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-4">
+                                <div class="w-10 h-10 bg-gray-800 text-white rounded font-bold flex items-center justify-center">D</div>
+                                <div>
+                                    <div class="font-bold text-sm">Drive (ขับ)</div>
+                                    <div class="text-xs text-gray-500">เกียร์เดินหน้าปกติ รถจะเปลี่ยนเกียร์ให้อัตโนมัติตามความเร็ว</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-red-50 border border-red-100 p-5 rounded-xl">
+                        <div class="flex items-start gap-3">
+                            <i class="fas fa-exclamation-circle text-red-500 text-xl mt-1"></i>
+                            <div>
+                                <h4 class="font-bold text-red-800 text-sm">กฎเหล็กเกียร์ออโต้</h4>
+                                <p class="text-xs text-red-700 mt-1">"เท้าขวาเท่านั้น!" ใช้เท้าขวาข้างเดียวในการเหยียบทั้งคันเร่งและเบรก ห้ามใช้เท้าซ้ายเหยียบเบรกเด็ดขาด เพื่อป้องกันความสับสนยามตกใจ</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4. Moto Info -->
+                <div id="content-moto-info" class="knowledge-content hidden">
+                    <div class="bg-orange-500 rounded-2xl p-6 text-white shadow-lg mb-6 relative overflow-hidden">
+                        <i class="fas fa-motorcycle absolute -right-4 -bottom-4 text-8xl opacity-20"></i>
+                        <h2 class="text-2xl font-bold mb-2">คู่มือขี่มอเตอร์ไซค์</h2>
+                        <p class="opacity-90 text-sm">เทคนิคพื้นฐานและความปลอดภัย</p>
+                    </div>
+
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-4">
+                        <div class="bg-gray-50 px-4 py-3 border-b border-gray-100 font-bold text-gray-700">
+                            <i class="fas fa-check-circle text-green-500 mr-2"></i> เช็คก่อนสตาร์ท
+                        </div>
+                        <div class="p-4 grid grid-cols-2 gap-4">
+                            <div class="text-center">
+                                <i class="fas fa-helmet-safety text-3xl text-gray-400 mb-2"></i>
+                                <p class="text-xs font-bold">สวมหมวกกันน็อค</p>
+                                <p class="text-[10px] text-gray-400">ล็อคสายรัดคางให้แน่น</p>
+                            </div>
+                            <div class="text-center">
+                                <i class="fas fa-tshirt text-3xl text-gray-400 mb-2"></i>
+                                <p class="text-xs font-bold">แต่งกายรัดกุม</p>
+                                <p class="text-[10px] text-gray-400">กางเกงขายาว รองเท้าหุ้มส้น</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-3">
+                         <div class="flex items-start gap-4 bg-white p-4 rounded-xl shadow-sm">
+                            <div class="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center shrink-0 text-orange-600 font-bold">1</div>
+                            <div>
+                                <h4 class="font-bold text-gray-800">การทรงตัว</h4>
+                                <p class="text-sm text-gray-600 mt-1">ตามองไปข้างหน้าเสมอ อย่ามองล้อหน้า หนีบถังน้ำมันด้วยเข่าเพื่อให้รถนิ่งขึ้น</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-4 bg-white p-4 rounded-xl shadow-sm">
+                            <div class="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center shrink-0 text-orange-600 font-bold">2</div>
+                            <div>
+                                <h4 class="font-bold text-gray-800">การใช้เบรก</h4>
+                                <p class="text-sm text-gray-600 mt-1">ใช้เบรกหน้าและหลังพร้อมกันเสมอ ห้ามกำเบรกหน้ากะทันหันขณะเลี้ยว เพราะรถจะพับล้มได้</p>
+                            </div>
+                        </div>
+                         <div class="flex items-start gap-4 bg-white p-4 rounded-xl shadow-sm">
+                            <div class="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center shrink-0 text-orange-600 font-bold">3</div>
+                            <div>
+                                <h4 class="font-bold text-gray-800">จุดบอด</h4>
+                                <p class="text-sm text-gray-600 mt-1">อย่าขี่ตีคู่รถใหญ่ ระวังจุดบอดที่กระจกมองข้างรถยนต์มองไม่เห็น</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 5. Bike Info -->
+                <div id="content-bike-info" class="knowledge-content hidden">
+                    <div class="bg-green-600 rounded-2xl p-6 text-white shadow-lg mb-6">
+                        <h2 class="text-2xl font-bold mb-2">จักรยานปลอดภัย</h2>
+                        <p class="opacity-90 text-sm">กฎจราจรสำหรับนักปั่น</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-sm text-center">
+                        <i class="fas fa-bicycle text-6xl text-green-500 mb-4"></i>
+                        <p class="text-gray-700 font-bold text-lg">"ชิดซ้าย เสมอ"</p>
+                        <p class="text-gray-500 text-sm mt-2">จักรยานเป็นรถช้า ควรขับขี่ในช่องทางซ้ายสุด หรือ Bike Lane เท่านั้น ห้ามขี่สวนเลนเด็ดขาด</p>
+                        <hr class="my-4 border-gray-100">
+                        <div class="text-left space-y-3">
+                            <p class="text-sm"><i class="fas fa-hand-paper w-6 text-center text-green-600"></i> <b>เลี้ยวซ้าย:</b> ยื่นแขนซ้ายออกไปเสมอไหล่</p>
+                            <p class="text-sm"><i class="fas fa-hand-paper w-6 text-center text-green-600"></i> <b>เลี้ยวขวา:</b> ยื่นแขนขวาออกไปเสมอไหล่</p>
+                            <p class="text-sm"><i class="fas fa-hand-paper w-6 text-center text-green-600"></i> <b>หยุดรถ:</b> ยกแขนขวาตั้งฉากขึ้น</p>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
-    </div>
 
-    <!-- Start Screen -->
-    <div id="start-screen">
-        <h2>Mini Manual Challenge</h2>
-        <p>ขับหลบกรวย เก็บเหรียญ!</p>
-        <ul style="text-align: left; font-size: 14px; color: #ccc; line-height: 1.6;">
-            <li>🔴 <b>เบรกมือ (P):</b> ต้องกดปลดก่อนเริ่ม!</li>
-            <li>🔵 <b>คลัตช์:</b> กด 1 ทีเพื่อเหยียบค้าง / กดซ้ำเพื่อปล่อย</li>
-            <li>🕹️ <b>เกียร์:</b> เหยียบคลัตช์ก่อนเข้าเกียร์</li>
-            <li>🪙 <b>เป้าหมาย:</b> เก็บเหรียญให้ครบ ห้ามชนกรวย</li>
-        </ul>
-        <button class="start-btn" onclick="startGame()">เริ่มเกม</button>
-    </div>
+        <!-- SECTION 2: SIMULATOR (ห้องทดลอง) - Internal Simulators (Restored) -->
+        <div id="section-sim" class="fade-in min-h-full hidden">
+             <!-- Sub Navigation for Sim -->
+             <div class="sticky top-0 bg-white shadow-sm z-10 px-4 pt-2">
+                <div class="flex gap-6 pb-2 justify-center">
+                    <button onclick="switchSubTab('sim', 'manual')" id="tab-manual" class="sub-tab active pb-2">เกียร์ธรรมดา</button>
+                    <button onclick="switchSubTab('sim', 'auto')" id="tab-auto" class="sub-tab pb-2">เกียร์ออโต้</button>
+                </div>
+            </div>
+
+            <div class="p-2 md:p-4 h-full">
+                <!-- MANUAL SIMULATOR -->
+                <div id="content-manual" class="sim-content h-full flex flex-col items-center">
+                    <div class="w-full max-w-lg bg-white rounded-xl shadow-sm p-3 mb-4 flex gap-3 border-l-4 border-blue-500 relative">
+                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Instructor" class="w-10 h-10 rounded-full bg-blue-50">
+                        <div class="flex-1">
+                            <p class="text-xs font-bold text-blue-900 mb-1">ครูฝึกเกียร์ธรรมดา</p>
+                            <p id="manual-instruction" class="text-sm text-gray-700 leading-tight">เริ่มจากเช็คเกียร์ว่าง (N) เหยียบ <b>คลัตช์</b> ค้างไว้แล้วกดสตาร์ท</p>
+                            <div class="flex gap-2 mt-2 justify-end">
+                                <button onclick="manualTutorial.prev()" class="px-3 py-1 bg-gray-100 rounded text-xs hover:bg-gray-200">ย้อน</button>
+                                <button onclick="manualTutorial.next()" class="px-3 py-1 bg-blue-600 text-white rounded text-xs hover:bg-blue-700 shadow-sm">ถัดไป</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="w-full max-w-lg flex-1 bg-gray-800 rounded-2xl p-4 relative flex flex-col items-center justify-between min-h-[400px] border-4 border-gray-700 shadow-inner">
+                        <div class="flex gap-4 mb-4 transform scale-90">
+                            <div class="relative w-24 h-24 bg-black rounded-full border-2 border-gray-600 flex items-center justify-center">
+                                <div class="absolute w-1 h-10 bg-red-500 bottom-1/2 left-1/2 -ml-0.5 origin-bottom needle" id="manual-speed-needle" style="transform: rotate(-120deg)"></div>
+                                <span class="absolute bottom-6 text-white font-bold text-lg" id="manual-speed-text">0</span>
+                                <span class="absolute bottom-2 text-gray-500 text-[10px]">km/h</span>
+                            </div>
+                            <div class="relative w-24 h-24 bg-black rounded-full border-2 border-gray-600 flex items-center justify-center">
+                                <div class="absolute w-1 h-10 bg-yellow-400 bottom-1/2 left-1/2 -ml-0.5 origin-bottom needle" id="manual-rpm-needle" style="transform: rotate(-120deg)"></div>
+                                <span class="absolute bottom-6 text-white font-bold text-lg" id="manual-rpm-text">0</span>
+                                <span class="absolute bottom-2 text-gray-500 text-[10px]">x1000</span>
+                            </div>
+                        </div>
+                        <button onclick="toggleManualEngine()" class="absolute top-4 right-4 w-12 h-12 rounded-full bg-red-600 border-2 border-red-800 shadow text-white font-bold text-[10px] flex flex-col items-center justify-center active:scale-95 transition">
+                            <i class="fas fa-power-off mb-0.5"></i> <span id="manual-status-text">START</span>
+                        </button>
+                        <!-- Adjusted margin-bottom (mb-12) to increase space between gear stick and pedals -->
+                        <div class="bg-gray-200 p-2 rounded-full w-40 h-40 flex items-center justify-center shadow-lg relative mt-2 mb-12">
+                             <div class="grid grid-cols-3 gap-2 relative z-10">
+                                <button onclick="shiftManual(1)" id="gear-1" class="gear-btn w-9 h-9 rounded-full bg-gray-300 font-bold text-gray-600 text-sm">1</button>
+                                <button onclick="shiftManual(3)" id="gear-3" class="gear-btn w-9 h-9 rounded-full bg-gray-300 font-bold text-gray-600 text-sm">3</button>
+                                <button onclick="shiftManual(5)" id="gear-5" class="gear-btn w-9 h-9 rounded-full bg-gray-300 font-bold text-gray-600 text-sm">5</button>
+                                <button onclick="shiftManual(2)" id="gear-2" class="gear-btn w-9 h-9 rounded-full bg-gray-300 font-bold text-gray-600 text-sm">2</button>
+                                <button onclick="shiftManual(4)" id="gear-4" class="gear-btn w-9 h-9 rounded-full bg-gray-300 font-bold text-gray-600 text-sm">4</button>
+                                <button onclick="shiftManual('R')" id="gear-R" class="gear-btn w-9 h-9 rounded-full bg-red-100 text-red-600 font-bold text-sm">R</button>
+                            </div>
+                             <div class="absolute -bottom-6 bg-gray-900 text-white px-2 py-0.5 rounded text-xs font-mono">Gear: <span id="manual-gear-display" class="text-yellow-400">N</span></div>
+                        </div>
+                        <div class="flex gap-2 w-full justify-center mt-auto no-select">
+                            <div class="flex flex-col items-center">
+                                <div id="pedal-clutch" 
+                                     ontouchstart="event.preventDefault(); pressClutch(true)" ontouchend="event.preventDefault(); pressClutch(false)"
+                                     onmousedown="pressClutch(true)" onmouseup="pressClutch(false)"
+                                     class="pedal w-16 h-24 bg-gradient-to-b from-gray-600 to-gray-800 rounded-lg border-b-4 border-gray-900 shadow-lg relative">
+                                </div>
+                                <span class="text-gray-400 text-xs mt-1">คลัตช์</span>
+                            </div>
+                            <div class="flex flex-col items-center">
+                                <div id="pedal-brake" 
+                                     ontouchstart="event.preventDefault(); pressBrake(true)" ontouchend="event.preventDefault(); pressBrake(false)"
+                                     onmousedown="pressBrake(true)" onmouseup="pressBrake(false)"
+                                     class="pedal w-14 h-20 bg-gradient-to-b from-gray-600 to-gray-800 rounded-lg border-b-4 border-gray-900 shadow-lg relative mx-2">
+                                </div>
+                                <span class="text-gray-400 text-xs mt-1">เบรก</span>
+                            </div>
+                            <div class="flex flex-col items-center">
+                                <div id="pedal-gas" 
+                                     ontouchstart="event.preventDefault(); pressGas(true)" ontouchend="event.preventDefault(); pressGas(false)"
+                                     onmousedown="pressGas(true)" onmouseup="pressGas(false)"
+                                     class="pedal w-10 h-24 bg-gradient-to-b from-gray-700 to-black rounded-lg border-b-4 border-gray-900 shadow-lg relative">
+                                </div>
+                                <span class="text-gray-400 text-xs mt-1">คันเร่ง</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AUTO SIMULATOR -->
+                <div id="content-auto" class="sim-content h-full hidden flex flex-col items-center">
+                     <div class="w-full max-w-lg bg-white rounded-xl shadow-sm p-3 mb-4 flex gap-3 border-l-4 border-green-500 relative">
+                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=InstructorAuto" class="w-10 h-10 rounded-full bg-green-50">
+                        <div class="flex-1">
+                            <p class="text-xs font-bold text-green-900 mb-1">ครูฝึกเกียร์ออโต้</p>
+                            <p id="auto-instruction" class="text-sm text-gray-700 leading-tight">เหยียบ <b>เบรก</b> ค้างไว้ก่อนสตาร์ท หรือเข้าเกียร์เสมอ</p>
+                            <div class="flex gap-2 mt-2 justify-end">
+                                <button onclick="autoTutorial.prev()" class="px-3 py-1 bg-gray-100 rounded text-xs hover:bg-gray-200">ย้อน</button>
+                                <button onclick="autoTutorial.next()" class="px-3 py-1 bg-green-600 text-white rounded text-xs hover:bg-green-700 shadow-sm">ถัดไป</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="w-full max-w-lg flex-1 bg-gray-200 rounded-2xl p-4 relative flex flex-col items-center justify-between min-h-[400px] border-4 border-white shadow-inner">
+                         <div class="w-full flex justify-between items-center bg-white p-3 rounded-xl shadow-sm mb-4">
+                             <div>
+                                 <div class="text-[10px] text-gray-400 uppercase font-bold">ความเร็ว</div>
+                                 <div class="text-2xl font-bold text-gray-800"><span id="auto-speed">0</span> <span class="text-sm font-normal text-gray-500">km/h</span></div>
+                             </div>
+                             <div class="text-right">
+                                 <button onclick="toggleAutoEngine()" class="bg-red-500 hover:bg-red-600 text-white text-xs px-4 py-2 rounded-lg shadow font-bold transition">
+                                     <i class="fas fa-power-off mr-1"></i> <span id="auto-status-text">START</span>
+                                 </button>
+                                 <div id="auto-engine-dot" class="w-2 h-2 rounded-full bg-red-300 mx-auto mt-1"></div>
+                             </div>
+                         </div>
+                         <div class="flex-1 flex w-full gap-4 items-end justify-between px-2">
+                            <div class="bg-gray-800 p-2 rounded-2xl shadow-xl">
+                                <div class="flex flex-col gap-2">
+                                    <button onclick="shiftAuto('P')" id="auto-P" class="w-12 h-10 rounded bg-gray-700 text-white font-bold text-sm border-l-4 border-transparent transition">P</button>
+                                    <button onclick="shiftAuto('R')" id="auto-R" class="w-12 h-10 rounded bg-gray-700 text-white font-bold text-sm border-l-4 border-transparent transition">R</button>
+                                    <button onclick="shiftAuto('N')" id="auto-N" class="w-12 h-10 rounded bg-gray-700 text-white font-bold text-sm border-l-4 border-transparent transition">N</button>
+                                    <button onclick="shiftAuto('D')" id="auto-D" class="w-12 h-10 rounded bg-gray-700 text-white font-bold text-sm border-l-4 border-transparent transition">D</button>
+                                </div>
+                            </div>
+                            <div class="flex gap-4 no-select items-end">
+                                <div class="flex flex-col items-center">
+                                    <div id="auto-brake" 
+                                         ontouchstart="event.preventDefault(); pressAutoBrake(true)" ontouchend="event.preventDefault(); if(!autoState.brakeLocked) pressAutoBrake(false)"
+                                         onmousedown="pressAutoBrake(true)" onmouseup="if(!autoState.brakeLocked) pressAutoBrake(false)"
+                                         onclick="toggleBrakeLock()"
+                                         class="pedal w-20 h-20 bg-gray-700 rounded-lg border-b-4 border-gray-900 shadow-xl flex items-center justify-center group relative">
+                                         <i class="fas fa-lock text-yellow-500 opacity-0 group-[.locked]:opacity-100 absolute top-2 transition-opacity text-xs"></i>
+                                         <span class="text-gray-400 text-[10px] mt-auto mb-1">แตะ=Lock</span>
+                                    </div>
+                                    <span class="text-gray-500 font-bold mt-2 text-xs">เบรก</span>
+                                </div>
+                                <div class="flex flex-col items-center">
+                                    <div id="auto-gas" 
+                                         ontouchstart="event.preventDefault(); pressAutoGas(true)" ontouchend="event.preventDefault(); pressAutoGas(false)"
+                                         onmousedown="pressAutoGas(true)" onmouseup="pressAutoGas(false)"
+                                         class="pedal w-12 h-32 bg-black rounded-t-lg border-b-4 border-gray-900 shadow-xl"></div>
+                                    <span class="text-gray-500 font-bold mt-2 text-xs">คันเร่ง</span>
+                                </div>
+                            </div>
+                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION 3: EXTERNAL LINKS (New Section with 3 Cards) -->
+        <div id="section-external" class="fade-in min-h-full hidden">
+            <div class="p-6">
+                <!-- UPDATED TITLE -->
+                <h2 class="text-2xl font-bold mb-4 text-gray-800 border-l-4 border-purple-500 pl-3">รถจำลอง</h2>
+                <p class="text-gray-500 mb-6 text-sm">เลือกรถที่คุณต้องการฝึก เพื่อเปิดหน้าต่างจำลองการขับขี่</p>
+
+                <div class="space-y-4">
+                    <!-- Card 1: Manual -->
+                    <a href="https://tontakankeawpang321-glitch.github.io/carmunauel.io/carmanuel.html" target="_blank" class="external-card block bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex items-center gap-4 hover:shadow-md transition">
+                        <div class="w-16 h-16 bg-blue-100 rounded-xl flex items-center justify-center text-blue-600 text-2xl shrink-0">
+                            <i class="fas fa-cogs"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="font-bold text-lg text-gray-800">รถเกียร์ธรรมดา</h3>
+                            <p class="text-xs text-gray-500">จำลองการเหยียบคลัตช์และเข้าเกียร์</p>
+                        </div>
+                        <div class="w-8 h-8 bg-gray-50 rounded-full flex items-center justify-center text-gray-400">
+                            <i class="fas fa-external-link-alt text-sm"></i>
+                        </div>
+                    </a>
+
+                    <!-- Card 2: Auto -->
+                    <a href="https://www.google.com/search?q=automatic+car+driving+simulator" target="_blank" class="external-card block bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex items-center gap-4 hover:shadow-md transition">
+                        <div class="w-16 h-16 bg-green-100 rounded-xl flex items-center justify-center text-green-600 text-2xl shrink-0">
+                            <i class="fas fa-car"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="font-bold text-lg text-gray-800">รถเกียร์ออโต้</h3>
+                            <p class="text-xs text-gray-500">จำลองการขับขี่เกียร์อัตโนมัติ</p>
+                        </div>
+                        <div class="w-8 h-8 bg-gray-50 rounded-full flex items-center justify-center text-gray-400">
+                            <i class="fas fa-external-link-alt text-sm"></i>
+                        </div>
+                    </a>
+
+                    <!-- Card 3: Moto -->
+                    <a href="https://www.google.com/search?q=motorcycle+riding+simulator" target="_blank" class="external-card block bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex items-center gap-4 hover:shadow-md transition">
+                        <div class="w-16 h-16 bg-orange-100 rounded-xl flex items-center justify-center text-orange-600 text-2xl shrink-0">
+                            <i class="fas fa-motorcycle"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="font-bold text-lg text-gray-800">มอเตอร์ไซค์</h3>
+                            <p class="text-xs text-gray-500">จำลองการทรงตัวและบิดคันเร่ง</p>
+                        </div>
+                        <div class="w-8 h-8 bg-gray-50 rounded-full flex items-center justify-center text-gray-400">
+                            <i class="fas fa-external-link-alt text-sm"></i>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Bottom Navigation Bar - UPDATED to 3 Tabs -->
+    <nav class="bg-white border-t border-gray-200 fixed bottom-0 w-full h-16 flex justify-around items-center z-30 pb-safe px-2">
+        <!-- 1. Knowledge -->
+        <button onclick="switchMainTab('knowledge')" id="nav-knowledge" class="nav-item active flex flex-col items-center justify-center w-full h-full text-gray-400 hover:bg-gray-50 transition">
+            <i class="fas fa-book-open text-xl mb-1 transition-transform duration-200"></i>
+            <span class="text-[10px] font-medium">คลังความรู้</span>
+        </button>
+        
+        <!-- 2. Internal Simulator -->
+        <button onclick="switchMainTab('sim')" id="nav-sim" class="nav-item flex flex-col items-center justify-center w-full h-full text-gray-400 hover:bg-gray-50 transition">
+            <i class="fas fa-gamepad text-xl mb-1 transition-transform duration-200"></i>
+            <span class="text-[10px] font-medium">ห้องทดลองขับ</span>
+        </button>
+
+        <!-- 3. External Links (Updated Title and Icon) -->
+        <button onclick="switchMainTab('external')" id="nav-external" class="nav-item flex flex-col items-center justify-center w-full h-full text-gray-400 hover:bg-gray-50 transition">
+            <i class="fas fa-car text-xl mb-1 transition-transform duration-200"></i>
+            <span class="text-[10px] font-medium">รถจำลอง</span>
+        </button>
+    </nav>
 
     <script>
-        // --- Game State ---
-        let scene, camera, renderer;
-        let car, wheels = []; 
-        let coins = [];
-        let obstacles = []; // Array for traffic cones
-        let ground;
+        // --- Navigation Logic ---
+        let currentSection = 'knowledge';
         
-        let score = 0;
-        let isPlaying = false;
-        let isGameOver = false;
-
-        // Physics State
-        let speed = 0;
-        let steeringAngle = 0;
-        let carAngle = 0;
-        let rpm = 0;
-        
-        // Manual Transmission State
-        let gear = 0;
-        let clutchPressed = false; // Now acts as a toggle state
-        let handbrakeEngaged = true; // Handbrake state
-        
-        // Inputs
-        let input = {
-            gas: false,
-            brake: false,
-            left: false,
-            right: false
-        };
-        
-        let targetWheelRot = 0;
-        let currentWheelRot = 0;
-
-        // Constants
-        const MAX_STEER = 0.045;
-        const FRICTION = 0.98;
-        const GEAR_RATIOS = {
-            '-1': { maxSpeed: -15, torque: 0.9 },
-            '0':  { maxSpeed: 0, torque: 0 },
-            '1':  { maxSpeed: 40, torque: 1.3 },
-            '2':  { maxSpeed: 80, torque: 1.0 },
-            '3':  { maxSpeed: 120, torque: 0.8 },
-            '4':  { maxSpeed: 160, torque: 0.6 },
-            '5':  { maxSpeed: 220, torque: 0.4 }
-        };
-        
-        // Arena Size
-        const ARENA_SIZE = 150; 
-
-        // --- Initialization ---
-        function init() {
-            scene = new THREE.Scene();
-            scene.background = new THREE.Color(0x333333); // Darker background
-            scene.fog = new THREE.Fog(0x333333, 20, 150);
-
-            camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 1000);
-            camera.position.set(0, 8, -14); 
-
-            renderer = new THREE.WebGLRenderer({ antialias: true });
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.shadowMap.enabled = true;
-            renderer.outputEncoding = THREE.sRGBEncoding; 
-            document.getElementById('container').appendChild(renderer.domElement);
-
-            const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
-            scene.add(ambientLight);
-
-            const dirLight = new THREE.DirectionalLight(0xffffff, 1.2);
-            dirLight.position.set(20, 50, 20);
-            dirLight.castShadow = true;
-            dirLight.shadow.mapSize.width = 2048;
-            dirLight.shadow.mapSize.height = 2048;
-            scene.add(dirLight);
-
-            createArena();
-            loadCarModel();
+        function switchMainTab(sectionId) {
+            currentSection = sectionId;
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active', 'text-blue-600'));
+            document.getElementById('nav-' + sectionId).classList.add('active', 'text-blue-600');
             
-            // Initial Spawns will happen in startGame
+            // Hide all sections
+            document.getElementById('section-knowledge').classList.add('hidden');
+            document.getElementById('section-sim').classList.add('hidden');
+            document.getElementById('section-external').classList.add('hidden');
             
-            window.addEventListener('resize', onWindowResize, false);
-            animate();
+            // Show target section
+            const target = document.getElementById('section-' + sectionId);
+            target.classList.remove('hidden');
+            target.classList.add('fade-in');
+            setTimeout(() => target.classList.remove('fade-in'), 300);
         }
 
-        function createArena() {
-            // Dirt Ground (Brown)
-            const geometry = new THREE.PlaneGeometry(ARENA_SIZE, ARENA_SIZE);
-            const material = new THREE.MeshStandardMaterial({ 
-                color: 0x8b5a2b, // สีน้ำตาล (Dirt)
-                roughness: 0.9 
-            });
-            ground = new THREE.Mesh(geometry, material);
-            ground.rotation.x = -Math.PI / 2;
-            ground.receiveShadow = true;
-            scene.add(ground);
-            
-            // Borders (Red/White Barriers)
-            const borderMatRed = new THREE.MeshStandardMaterial({ color: 0xff0000 });
-            const borderMatWhite = new THREE.MeshStandardMaterial({ color: 0xffffff });
-            
-            const createBorder = (x, z, w, d, rotY) => {
-                const mesh = new THREE.Mesh(new THREE.BoxGeometry(w, 1.5, d), borderMatRed);
-                mesh.position.set(x, 0.75, z);
-                mesh.rotation.y = rotY;
-                mesh.castShadow = true;
-                scene.add(mesh);
-                
-                // Add stripes
-                const stripe = new THREE.Mesh(new THREE.BoxGeometry(w/2, 1.6, d+0.1), borderMatWhite);
-                stripe.position.copy(mesh.position);
-                stripe.rotation.y = rotY;
-                scene.add(stripe);
-            };
+        function switchSubTab(section, tabId) {
+            const container = document.getElementById('section-' + section);
+            container.querySelectorAll('.sub-tab').forEach(el => el.classList.remove('active'));
+            document.getElementById('tab-' + tabId).classList.add('active');
 
-            const half = ARENA_SIZE / 2;
-            createBorder(-half, 0, 1, ARENA_SIZE, 0); // Left
-            createBorder(half, 0, 1, ARENA_SIZE, 0);  // Right
-            createBorder(0, -half, ARENA_SIZE, 1, 0); // Back
-            createBorder(0, half, ARENA_SIZE, 1, 0);  // Front
-        }
-
-        function loadCarModel() {
-            createProceduralCar(); // รถชั่วคราวกันจอว่าง
-
-            const loader = new THREE.GLTFLoader();
-            const loadingMsg = document.getElementById('loading-msg');
-            loadingMsg.style.display = 'block';
-
-            // ใช้ลิงก์ออนไลน์เพื่อให้เห็นรถทันที (ถ้าคุณมีไฟล์ car.glb ให้แก้ตรงนี้กลับเป็น './car.glb')
-            const modelUrl = '2017_chevrolet_colorado_zr2.glb'; 
-
-            loader.load(
-                modelUrl,
-                (gltf) => {
-                    scene.remove(car);
-                    car = gltf.scene;
-
-                    // ✅ เปิดเงา
-                    car.traverse(o => {
-                        if (o.isMesh) {
-                            o.castShadow = true;
-                            o.receiveShadow = true;
-                        }
-                    });
-
-                    // ✅ คำนวณขนาดและสเกล
-                    const box = new THREE.Box3().setFromObject(car);
-                    const size = box.getSize(new THREE.Vector3());
-
-                    // ✅ ย่อ/ขยายอัตโนมัติให้สูง ~3 หน่วย
-                    const maxDim = Math.max(size.x, size.y, size.z);
-                    const scale = 7 / maxDim;
-                    car.scale.setScalar(scale);
-
-                    // 🔥 คำนวณใหม่หลัง scale
-                    car.updateMatrixWorld(true); // อัปเดต Matrix ให้แน่ใจว่า Box ถูกต้อง
-                    box.setFromObject(car);
-
-                    const center = box.getCenter(new THREE.Vector3());
-                    
-                    // จัดกึ่งกลาง (เฉพาะ X และ Z)
-                    car.position.x -= center.x;
-                    car.position.z -= center.z;
-
-                    // ✅ ยกขึ้นตาม "ขอบล่าง" ของโมเดล
-                    const minY = box.min.y;
-                    car.position.y -= minY;
-                    
-                    // 🔥 ยกเพิ่มอีกนิดเพื่อกันล้อจม (Offset)
-                    car.position.y += 0.35; 
-
-                    // ✅ หันหน้าถูกทิศ (กลับด้าน 180 องศา)
-                    car.rotation.y = Math.PI;
-
-                    scene.add(car);
-                    loadingMsg.style.display = 'none';
-                },
-                undefined,
-                (err) => {
-                    console.error('Error loading car:', err);
-                    loadingMsg.innerText = "โหลดไฟล์ 3D ไม่สำเร็จ (ใช้รถพื้นฐาน)";
-                    loadingMsg.style.color = "yellow";
-                    // รถพื้นฐานยังอยู่ ไม่ต้องทำอะไรเพิ่ม
-                    setTimeout(() => loadingMsg.style.display = 'none', 3000);
-                }
-            );
-        }
-
-        function createProceduralCar() {
-            if(car) scene.remove(car);
-            car = new THREE.Group();
-            const chassis = new THREE.Mesh(
-                new THREE.BoxGeometry(2, 0.5, 4),
-                new THREE.MeshStandardMaterial({ color: 0xdc143c })
-            );
-            chassis.position.y = 0.6;
-            chassis.castShadow = true;
-            car.add(chassis);
-            
-            const cabin = new THREE.Mesh(
-                new THREE.BoxGeometry(1.6, 0.5, 2),
-                new THREE.MeshStandardMaterial({ color: 0x111111 })
-            );
-            cabin.position.set(0, 1.1, -0.2);
-            car.add(cabin);
-            scene.add(car);
-        }
-
-        function spawnCoins(count) {
-            // Clear existing
-            coins.forEach(c => scene.remove(c));
-            coins = [];
-
-            const coinGeo = new THREE.TorusGeometry(0.8, 0.2, 16, 50);
-            const coinMat = new THREE.MeshStandardMaterial({ color: 0xffd700, metalness: 1, roughness: 0.2 });
-            const range = ARENA_SIZE/2 - 5;
-            
-            for (let i = 0; i < count; i++) {
-                const coin = new THREE.Mesh(coinGeo, coinMat);
-                // Random position within arena bounds
-                coin.position.set(
-                    (Math.random()-0.5) * range * 2,
-                    1.5,
-                    (Math.random()-0.5) * range * 2
-                );
-                coin.userData = { rotationSpeed: Math.random() * 0.05 + 0.02 };
-                scene.add(coin);
-                coins.push(coin);
+            if (section === 'knowledge') {
+                container.querySelectorAll('.knowledge-content').forEach(el => el.classList.add('hidden'));
+                const content = document.getElementById('content-' + tabId);
+                content.classList.remove('hidden');
+                content.classList.add('fade-in');
+            } else if (section === 'sim') {
+                container.querySelectorAll('.sim-content').forEach(el => el.classList.add('hidden'));
+                const content = document.getElementById('content-' + tabId);
+                content.classList.remove('hidden');
+                content.classList.add('fade-in');
             }
         }
 
-        function spawnObstacles(count) {
-            // Clear existing
-            obstacles.forEach(o => scene.remove(o));
-            obstacles = [];
-
-            const coneGeo = new THREE.ConeGeometry(0.5, 1.5, 32);
-            const coneMat = new THREE.MeshStandardMaterial({ color: 0xff6600 }); // Orange
-            const range = ARENA_SIZE/2 - 5;
-
-            for (let i = 0; i < count; i++) {
-                const cone = new THREE.Mesh(coneGeo, coneMat);
-                let x, z;
-                // Ensure cones don't spawn too close to start (0,0)
-                do {
-                    x = (Math.random()-0.5) * range * 2;
-                    z = (Math.random()-0.5) * range * 2;
-                } while(Math.abs(x) < 10 && Math.abs(z) < 10);
-
-                cone.position.set(x, 0.75, z);
-                cone.castShadow = true;
-                scene.add(cone);
-                obstacles.push(cone);
+        // --- Tutorial System ---
+        class Tutorial {
+            constructor(data, textElementId) {
+                this.steps = data;
+                this.currentStep = 0;
+                this.textElement = document.getElementById(textElementId);
             }
-        }
-
-        // --- Physics & Logic ---
-
-        function updatePhysics() {
-            if (!car || isGameOver) return;
-
-            // Handbrake Logic: If engaged, car stops rapidly and cannot accelerate
-            if (handbrakeEngaged) {
-                speed *= 0.8; // Strong friction
-                if (Math.abs(speed) < 0.1) speed = 0;
-                
-                // RPM behaves like neutral/load depending on clutch, but car won't move much
-            }
-
-            // RPM Logic
-            let targetMaxSpeed = GEAR_RATIOS[gear].maxSpeed;
-            let currentRatio = Math.abs(speed) / (Math.abs(targetMaxSpeed) || 1);
-            
-            if (gear === 0) {
-                rpm = input.gas ? Math.min(rpm + 0.05, 1) : rpm * 0.95;
-            } else if (clutchPressed) {
-                rpm = input.gas ? Math.min(rpm + 0.05, 1) : rpm * 0.9;
-            } else {
-                rpm = currentRatio;
-                if (input.gas && rpm < 0.2) rpm += 0.01; 
-            }
-
-            // Move
-            let acceleration = 0;
-            // Car moves only if gas is pressed, clutch is NOT pressed, gear is not N, and Handbrake is OFF
-            if (input.gas && !clutchPressed && gear !== 0 && !handbrakeEngaged) {
-                const torque = GEAR_RATIOS[gear].torque;
-                let powerFactor = rpm > 0.95 ? 0.2 : 1;
-                let dir = gear > 0 ? 1 : -1;
-                acceleration = 0.3 * torque * powerFactor * dir;
-            }
-
-            if (input.brake) {
-                if (speed > 0) speed -= 0.5; else if (speed < 0) speed += 0.5;
-                if (Math.abs(speed) < 0.5) speed = 0;
-            } else {
-                speed *= FRICTION;
-                if (Math.abs(speed) < 0.1) speed = 0;
-            }
-
-            speed += acceleration;
-            
-            if (gear !== 0) {
-                let limit = Math.abs(GEAR_RATIOS[gear].maxSpeed);
-                speed = Math.max(Math.min(speed, limit), -limit);
-            }
-
-            if (Math.abs(speed) > 0.2) {
-                let steerAmount = MAX_STEER;
-                if (Math.abs(speed) > 80) steerAmount *= 0.5;
-                
-                if (input.left) carAngle += steerAmount * (speed > 0 ? 1 : -1);
-                if (input.right) carAngle -= steerAmount * (speed > 0 ? 1 : -1);
-            }
-
-            // Calculate new position
-            let dx = Math.sin(carAngle) * speed * 0.1;
-            let dz = Math.cos(carAngle) * speed * 0.1;
-            
-            // Check Arena Bounds
-            let nextX = car.position.x + dx;
-            let nextZ = car.position.z + dz;
-            const bound = ARENA_SIZE/2 - 2;
-
-            if (nextX > bound || nextX < -bound) {
-                speed = -speed * 0.5; // Bounce off wall
-                dx = 0;
-            }
-            if (nextZ > bound || nextZ < -bound) {
-                speed = -speed * 0.5;
-                dz = 0;
-            }
-
-            car.position.x += dx;
-            car.position.z += dz;
-            car.rotation.y = carAngle; 
-
-            // Camera Follow
-            const dist = 18; 
-            const height = 8;
-            const cx = car.position.x - Math.sin(carAngle) * dist;
-            const cz = car.position.z - Math.cos(carAngle) * dist;
-            camera.position.lerp(new THREE.Vector3(cx, height, cz), 0.1);
-            camera.lookAt(car.position);
-
-            // Check Coins
-            for (let i = coins.length - 1; i >= 0; i--) {
-                coins[i].rotation.y += coins[i].userData.rotationSpeed;
-                if (car.position.distanceTo(coins[i].position) < 3.5) {
-                    scene.remove(coins[i]);
-                    coins.splice(i, 1);
-                    score += 10;
-                    showMessage("+10 แต้ม!");
-                    document.getElementById('score-display').innerText = score;
-                }
-            }
-
-            // Check Obstacles (Cones) - Game Over if hit
-            for (let cone of obstacles) {
-                if (car.position.distanceTo(cone.position) < 3.0) {
-                    gameOver();
-                    break;
-                }
-            }
-
-            if(coins.length === 0 && isPlaying) {
-                showMessage("ชนะแล้ว!");
-                isPlaying = false;
+            update() {
+                this.textElement.style.opacity = 0;
                 setTimeout(() => {
-                   document.getElementById('start-screen').style.display = 'flex';
-                   document.querySelector('#start-screen h2').innerText = "ยินดีด้วย! คุณชนะแล้ว";
-                   document.querySelector('#start-screen p').innerText = "คะแนนรวม: " + score;
-                }, 2000);
+                    this.textElement.innerHTML = this.steps[this.currentStep];
+                    this.textElement.style.opacity = 1;
+                }, 100);
             }
-        }
-        
-        function gameOver() {
-            isGameOver = true;
-            isPlaying = false;
-            speed = 0;
-            showMessage("GAME OVER! ชนกรวย");
-            document.getElementById('start-screen').style.display = 'flex';
-            document.querySelector('#start-screen h2').innerText = "GAME OVER";
-            document.querySelector('#start-screen p').innerText = "คุณชนกรวย! คะแนน: " + score;
-        }
-
-        function updateUI() {
-            document.getElementById('speed-display').innerText = Math.abs(Math.round(speed)); 
-            
-            let gearText = gear === 0 ? "N" : (gear === -1 ? "R" : gear);
-            document.getElementById('gear-display').innerText = gearText;
-            
-            const rpmBar = document.getElementById('rpm-bar');
-            rpmBar.style.width = (rpm * 100) + "%";
-            rpmBar.style.backgroundColor = rpm > 0.9 ? "red" : (rpm > 0.7 ? "yellow" : "lime");
-
-            // --- Move Stick Knob ---
-            const knob = document.getElementById('shifter-knob');
-            // Base positions (percentages)
-            let top = 50, left = 50;
-            
-            switch(gear) {
-                case 1: top = 15; left = 15; break; // Top Left
-                case 2: top = 85; left = 15; break; // Bottom Left
-                case 3: top = 15; left = 50; break; // Top Mid
-                case 4: top = 85; left = 50; break; // Bottom Mid
-                case 5: top = 15; left = 85; break; // Top Right
-                case -1: top = 85; left = 85; break; // Bottom Right (R)
-                case 0: top = 50; left = 50; break; // Center
-            }
-            
-            knob.style.top = top + "%";
-            knob.style.left = left + "%";
-
-            // Steering Wheel
-            if (input.left) targetWheelRot = -45;
-            else if (input.right) targetWheelRot = 45;
-            else targetWheelRot = 0;
-            currentWheelRot += (targetWheelRot - currentWheelRot) * 0.2;
-            document.getElementById('steering-wheel').style.transform = `rotate(${currentWheelRot}deg)`;
-        }
-
-        function animate() {
-            requestAnimationFrame(animate);
-            if (isPlaying) {
-                updatePhysics();
-                updateUI();
-            }
-            renderer.render(scene, camera);
-        }
-
-        function onWindowResize() {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        }
-
-        // --- Controls ---
-        function setupControls() {
-            const setInput = (key, val) => input[key] = val;
-            
-            // Steering
-            const leftZone = document.getElementById('steer-left-zone');
-            const rightZone = document.getElementById('steer-right-zone');
-            const addTouch = (elem, key) => {
-                elem.addEventListener('touchstart', (e) => { e.preventDefault(); setInput(key, true); });
-                elem.addEventListener('touchend', (e) => { e.preventDefault(); setInput(key, false); });
-                elem.addEventListener('mousedown', () => setInput(key, true));
-                elem.addEventListener('mouseup', () => setInput(key, false));
-                elem.addEventListener('mouseleave', () => setInput(key, false));
-            };
-            addTouch(leftZone, 'left');
-            addTouch(rightZone, 'right');
-
-            // Standard Pedals (Gas, Brake)
-            const gasBtn = document.getElementById('gas');
-            const brakeBtn = document.getElementById('brake');
-            addTouch(gasBtn, 'gas');
-            addTouch(brakeBtn, 'brake');
-            gasBtn.addEventListener('touchstart', () => gasBtn.classList.add('pedal-pressed'));
-            gasBtn.addEventListener('touchend', () => gasBtn.classList.remove('pedal-pressed'));
-            brakeBtn.addEventListener('touchstart', () => brakeBtn.classList.add('pedal-pressed'));
-            brakeBtn.addEventListener('touchend', () => brakeBtn.classList.remove('pedal-pressed'));
-
-
-            // --- Handbrake Toggle Logic ---
-            const handbrakeBtn = document.getElementById('handbrake-btn');
-            
-            const toggleHandbrake = () => {
-                handbrakeEngaged = !handbrakeEngaged;
-                if(handbrakeEngaged) {
-                    handbrakeBtn.classList.add('active-brake');
-                    showMessage("ดึงเบรกมือ!");
-                } else {
-                    handbrakeBtn.classList.remove('active-brake');
-                    showMessage("ปลดเบรกมือแล้ว");
+            next() {
+                if (this.currentStep < this.steps.length - 1) {
+                    this.currentStep++;
+                    this.update();
                 }
-            };
+            }
+            prev() {
+                if (this.currentStep > 0) {
+                    this.currentStep--;
+                    this.update();
+                }
+            }
+        }
 
-            // Toggle on click/tap
-            handbrakeBtn.addEventListener('click', (e) => { e.preventDefault(); toggleHandbrake(); });
-            handbrakeBtn.addEventListener('touchstart', (e) => { e.preventDefault(); toggleHandbrake(); });
+        const manualTutorial = new Tutorial([
+            "1. เริ่มต้น: เช็คเกียร์ว่าง (N) เหยียบ <b>คลัตช์</b> ค้างไว้แล้วกดปุ่ม START",
+            "2. เข้าเกียร์: เหยียบคลัตช์ค้างไว้ แตะที่เลข <b>1</b> เพื่อเข้าเกียร์ 1",
+            "3. ออกตัว: ค่อยๆ <b>ปล่อยคลัตช์</b> ช้าๆ พร้อมกับ <b>กดคันเร่ง</b> เบาๆ",
+            "4. ระวัง: ถ้าปล่อยคลัตช์เร็วไปโดยไม่เติมคันเร่ง เครื่องจะดับ!",
+            "5. เปลี่ยนเกียร์: เมื่อความเร็วถึง 20 ให้เหยียบคลัตช์ ผ่อนคันเร่ง แล้วเข้าเกียร์ 2"
+        ], 'manual-instruction');
 
+        const autoTutorial = new Tutorial([
+            "1. ความปลอดภัย: เกียร์ออโต้ต้อง <b>เหยียบเบรก</b> ก่อนสตาร์ทรถเสมอ",
+            "2. สตาร์ท: กดปุ่ม START ขณะที่เท้ายังเหยียบเบรกอยู่",
+            "3. เตรียมออกตัว: เหยียบเบรกค้างไว้ แล้วเปลี่ยนเกียร์มาที่ <b>D</b> (Drive)",
+            "4. ออกรถ: ค่อยๆ ปล่อยเบรก รถจะเริ่มไหล (Creep) แล้วค่อยเติมคันเร่ง",
+            "5. จอดรถ: เหยียบเบรกจนหยุดสนิท แล้วเปลี่ยนเกียร์ไปที่ <b>P</b> (Park)"
+        ], 'auto-instruction');
 
-            // --- Clutch Toggle Logic ---
-            const clutchBtn = document.getElementById('clutch');
-            
-            const toggleClutch = () => {
-                if(handbrakeEngaged) {
-                    showMessage("ต้องปลดเบรกมือก่อน!");
+        // --- Simulator Logic: Shared & Utils ---
+        function clamp(val, min, max) { return Math.min(Math.max(val, min), max); }
+
+        // --- Manual Car Logic ---
+        let manualState = { engine: false, rpm: 0, speed: 0, gear: 'N', clutch: false, gas: false, brake: false };
+        
+        function updateManualUI() {
+            // Needles
+            const rpmDeg = -120 + (manualState.rpm / 8000 * 240);
+            const speedDeg = -120 + (manualState.speed / 200 * 240);
+            document.getElementById('manual-rpm-needle').style.transform = `rotate(${rpmDeg}deg)`;
+            document.getElementById('manual-rpm-text').innerText = (manualState.rpm / 1000).toFixed(1);
+            document.getElementById('manual-speed-needle').style.transform = `rotate(${speedDeg}deg)`;
+            document.getElementById('manual-speed-text').innerText = Math.floor(manualState.speed);
+
+            const btn = document.getElementById('manual-status-text');
+            if(manualState.engine) {
+                btn.innerText = "STOP";
+                btn.parentElement.classList.add('bg-green-600', 'border-green-800');
+                btn.parentElement.classList.remove('bg-red-600', 'border-red-800');
+            } else {
+                btn.innerText = "START";
+                btn.parentElement.classList.add('bg-red-600', 'border-red-800');
+                btn.parentElement.classList.remove('bg-green-600', 'border-green-800');
+            }
+
+            document.getElementById('manual-gear-display').innerText = manualState.gear;
+            document.querySelectorAll('.gear-btn').forEach(b => b.classList.remove('active'));
+            if(manualState.gear !== 'N') document.getElementById('gear-'+manualState.gear).classList.add('active');
+
+            document.getElementById('pedal-clutch').classList.toggle('pressed', manualState.clutch);
+            document.getElementById('pedal-brake').classList.toggle('pressed', manualState.brake);
+            document.getElementById('pedal-gas').classList.toggle('pressed', manualState.gas);
+        }
+
+        function toggleManualEngine() {
+            if(manualState.engine) {
+                manualState.engine = false; manualState.rpm = 0; manualState.speed = 0;
+            } else {
+                if(manualState.gear !== 'N' && !manualState.clutch) {
+                    alert('⚠️ ต้องเหยียบคลัตช์ หรือเข้าเกียร์ว่าง (N) ก่อนสตาร์ท');
                     return;
                 }
-
-                clutchPressed = !clutchPressed;
-                if(clutchPressed) {
-                    clutchBtn.classList.add('clutch-locked');
-                } else {
-                    clutchBtn.classList.remove('clutch-locked');
-                }
-            };
-            
-            // Toggle on click/tap (PreventDefault to avoid double firing)
-            clutchBtn.addEventListener('click', (e) => { e.preventDefault(); toggleClutch(); });
-            clutchBtn.addEventListener('touchstart', (e) => { e.preventDefault(); toggleClutch(); });
-
-
-            // Gear Shifter (Touch Zones)
-            document.querySelectorAll('.gear-touch-zone').forEach(zone => {
-                const handler = (e) => { 
-                    e.preventDefault(); 
-                    selectGear(parseInt(zone.dataset.gear)); 
-                };
-                zone.addEventListener('touchstart', handler);
-                zone.addEventListener('mousedown', handler);
-            });
-
-            // Keyboard
-            window.addEventListener('keydown', (e) => {
-                switch(e.key) {
-                    case 'ArrowUp': input.gas = true; document.getElementById('gas').classList.add('pedal-pressed'); break;
-                    case 'ArrowDown': input.brake = true; document.getElementById('brake').classList.add('pedal-pressed'); break;
-                    case 'ArrowLeft': input.left = true; break;
-                    case 'ArrowRight': input.right = true; break;
-                    case 'Shift': toggleClutch(); break; // Shift toggles clutch
-                    case 'p': case 'P': toggleHandbrake(); break; // P toggles handbrake
-                    case '1': selectGear(1); break;
-                    case '2': selectGear(2); break;
-                    case '3': selectGear(3); break;
-                    case '4': selectGear(4); break;
-                    case '5': selectGear(5); break;
-                    case 'r': case 'R': selectGear(-1); break;
-                    case 'n': case 'N': selectGear(0); break;
-                }
-            });
-            window.addEventListener('keyup', (e) => {
-                switch(e.key) {
-                    case 'ArrowUp': input.gas = false; document.getElementById('gas').classList.remove('pedal-pressed'); break;
-                    case 'ArrowDown': input.brake = false; document.getElementById('brake').classList.remove('pedal-pressed'); break;
-                    case 'ArrowLeft': input.left = false; break;
-                    case 'ArrowRight': input.right = false; break;
-                }
-            });
+                manualState.engine = true; manualState.rpm = 800;
+            }
+            updateManualUI();
         }
 
-        function selectGear(targetGear) {
-            if (!clutchPressed) {
-                showMessage("เหยียบคลัตช์ก่อน!");
+        function shiftManual(g) {
+            if(!manualState.clutch && manualState.engine) {
+                manualState.engine = false; manualState.rpm = 0; manualState.speed = 0;
+                alert('💥 เครื่องดับ! เปลี่ยนเกียร์ไม่เหยียบคลัตช์');
+            } else {
+                manualState.gear = (manualState.gear === g) ? 'N' : g;
+            }
+            updateManualUI();
+        }
+
+        function pressClutch(v) { manualState.clutch = v; updateManualUI(); }
+        function pressBrake(v) { manualState.brake = v; updateManualUI(); }
+        function pressGas(v) { manualState.gas = v; updateManualUI(); }
+
+        setInterval(() => {
+            if(!manualState.engine) return;
+            if(manualState.gas) {
+                if(manualState.clutch || manualState.gear === 'N') manualState.rpm = clamp(manualState.rpm + 200, 0, 7000);
+                else {
+                    manualState.rpm = clamp(manualState.rpm + 50, 0, 6000);
+                    manualState.speed = clamp(manualState.speed + 1.5, 0, 180);
+                }
+            } else {
+                manualState.rpm = clamp(manualState.rpm - 100, 800, 7000);
+                manualState.speed = clamp(manualState.speed - 0.5, 0, 180);
+            }
+            if(manualState.brake) manualState.speed = clamp(manualState.speed - 3, 0, 180);
+            if(manualState.gear !== 'N' && !manualState.clutch && manualState.rpm < 500 && manualState.speed === 0) {
+                manualState.engine = false; manualState.rpm = 0;
+            }
+            updateManualUI();
+        }, 50);
+
+        // --- Auto Car Logic (Fixed Bug) ---
+        let autoState = { engine: false, gear: 'P', speed: 0, brake: false, gas: false, brakeLocked: false };
+
+        function updateAutoUI() {
+            ['P','R','N','D'].forEach(g => {
+                const el = document.getElementById('auto-'+g);
+                if(autoState.gear === g) el.classList.add('bg-blue-600', 'text-white', 'border-blue-400');
+                else el.classList.remove('bg-blue-600', 'text-white', 'border-blue-400');
+            });
+
+            const statusText = document.getElementById('auto-status-text');
+            const statusDot = document.getElementById('auto-engine-dot');
+            if(autoState.engine) {
+                statusText.innerText = "STOP";
+                statusDot.classList.add('bg-green-500', 'animate-pulse');
+                statusDot.classList.remove('bg-red-300');
+            } else {
+                statusText.innerText = "START";
+                statusDot.classList.remove('bg-green-500', 'animate-pulse');
+                statusDot.classList.add('bg-red-300');
+            }
+            document.getElementById('auto-speed').innerText = Math.floor(autoState.speed);
+
+            const brakeEl = document.getElementById('auto-brake');
+            if(autoState.brake) {
+                brakeEl.classList.add('pressed');
+                if(autoState.brakeLocked) brakeEl.classList.add('locked');
+            } else {
+                brakeEl.classList.remove('pressed', 'locked');
+            }
+            document.getElementById('auto-gas').classList.toggle('pressed', autoState.gas);
+        }
+
+        function toggleBrakeLock() {
+            autoState.brakeLocked = !autoState.brakeLocked;
+            autoState.brake = autoState.brakeLocked;
+            updateAutoUI();
+        }
+
+        function toggleAutoEngine() {
+            if(!autoState.brake && !autoState.engine) {
+                alert('⚠️ กรุณาเหยียบเบรกก่อนกดปุ่มสตาร์ท');
                 return;
             }
-            gear = targetGear;
-            updateUI();
-        }
-
-        function showMessage(text) {
-            const msgEl = document.getElementById('message');
-            msgEl.innerText = text;
-            msgEl.style.display = 'block';
-            if (msgEl.timeout) clearTimeout(msgEl.timeout);
-            msgEl.timeout = setTimeout(() => { msgEl.style.display = 'none'; }, 1500);
-        }
-
-        function startGame() {
-            document.getElementById('start-screen').style.display = 'none';
-            
-            // Reset Game
-            score = 0;
-            document.getElementById('score-display').innerText = score;
-            speed = 0;
-            gear = 0;
-            carAngle = 0;
-            rpm = 0;
-            
-            // Initial Car State
-            handbrakeEngaged = true; // Start with Handbrake ON
-            clutchPressed = false;
-            
-            // Reset UI Visuals
-            document.getElementById('handbrake-btn').classList.add('active-brake'); // Show P as active
-            document.getElementById('clutch').classList.remove('clutch-locked');
-            
-            if(car) {
-                // รีเซ็ตเฉพาะ X Z
-                car.position.x = 0;
-                car.position.z = 0;
-
-                // ❌ ห้ามแตะ y
-                // car.position.y = ?
-
-                car.rotation.set(0, 0, 0);
+            if(autoState.gear !== 'P' && !autoState.engine) {
+                alert('⚠️ ต้องเข้าเกียร์ P ก่อนสตาร์ท');
+                return;
             }
-            
-            spawnCoins(15);
-            spawnObstacles(20); 
-            
-            isGameOver = false;
-            isPlaying = true;
+            autoState.engine = !autoState.engine;
+            if(!autoState.engine) autoState.speed = 0;
+            updateAutoUI();
         }
 
-        init();
-        setupControls();
+        function shiftAuto(g) {
+            if(!autoState.brake && autoState.engine) {
+                alert('⚠️ เหยียบเบรกก่อนเปลี่ยนเกียร์เสมอ');
+                return;
+            }
+            autoState.gear = g;
+            updateAutoUI();
+        }
+
+        function pressAutoBrake(v) { 
+            if(autoState.brakeLocked && !v) return; 
+            autoState.brake = v; 
+            updateAutoUI(); 
+        }
+        function pressAutoGas(v) { autoState.gas = v; updateAutoUI(); }
+
+        setInterval(() => {
+            if(!autoState.engine) return;
+            if(autoState.gear === 'D') {
+                if(autoState.gas) autoState.speed += 1.2;
+                else if(!autoState.brake) autoState.speed = clamp(autoState.speed + 0.1, 0, 5); 
+                else autoState.speed -= 2;
+            } else if (autoState.gear === 'R') {
+                if(autoState.gas) autoState.speed += 0.8;
+            } else if (autoState.gear === 'N' || autoState.gear === 'P') {
+                autoState.speed -= 1;
+            }
+            if(autoState.brake) autoState.speed -= 3;
+            autoState.speed = clamp(autoState.speed, 0, 160);
+            updateAutoUI();
+        }, 50);
+
+        // Init
+        switchMainTab('knowledge');
+        switchSubTab('knowledge', 'license');
 
     </script>
 </body>
