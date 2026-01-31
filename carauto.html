@@ -2,10 +2,21 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Mini PRND Auto (GLB Car)</title>
     <style>
-        body { margin: 0; overflow: hidden; font-family: 'Kanit', sans-serif; background-color: #eef0f5; touch-action: none; }
+        body { 
+            margin: 0; 
+            overflow: hidden; 
+            font-family: 'Kanit', sans-serif; 
+            background-color: #eef0f5; 
+            touch-action: none; /* ห้าม Zoom/Scroll */
+            -webkit-user-select: none; /* ห้ามเลือก Text */
+            user-select: none;
+            /* รองรับ Safe Area สำหรับมือถือจอมีรอยบาก */
+            padding-left: env(safe-area-inset-left);
+            padding-right: env(safe-area-inset-right);
+        }
         
         /* UI Overlay */
         #game-ui {
@@ -15,23 +26,25 @@
 
         /* Top Bar (Dashboard) */
         #top-bar {
-            background: white;
-            padding: 15px 25px;
-            margin: 20px;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 10px 20px;
+            margin: 15px;
             border-radius: 20px;
             display: flex; justify-content: space-between; align-items: center;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05); /* เงาจางลง */
             pointer-events: auto;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.5);
         }
         .speed-box { color: #333; }
-        .speed-label { font-size: 14px; color: #888; margin-bottom: 5px; }
-        .speed-val { font-size: 32px; font-weight: bold; }
-        .unit { font-size: 16px; color: #888; font-weight: normal; }
+        .speed-label { font-size: 12px; color: #888; margin-bottom: 2px; }
+        .speed-val { font-size: 28px; font-weight: bold; }
+        .unit { font-size: 14px; color: #888; font-weight: normal; }
 
         #btn-restart {
             background: #ff4757; color: white; border: none;
-            padding: 10px 25px; border-radius: 12px; font-weight: bold; font-size: 16px;
-            box-shadow: 0 4px 10px rgba(255, 71, 87, 0.4);
+            padding: 8px 20px; border-radius: 12px; font-weight: bold; font-size: 14px;
+            box-shadow: 0 4px 10px rgba(255, 71, 87, 0.3);
             display: flex; align-items: center; gap: 8px; cursor: pointer;
         }
         #btn-restart:active { transform: scale(0.95); }
@@ -40,51 +53,56 @@
         #controls {
             pointer-events: auto;
             display: flex; justify-content: space-between; align-items: flex-end;
-            padding: 0 40px 40px 40px;
-            height: 50%;
+            padding: 0 20px 20px 20px; 
+            height: 60%;
             position: relative;
+            box-sizing: border-box;
         }
 
         /* --- Gear Selector (PRND) --- */
         .gear-container {
-            background: #2f3542;
-            padding: 10px;
-            border-radius: 20px;
-            display: flex; flex-direction: column; gap: 10px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            /* ปรับให้โปร่งและเบาขึ้น */
+            background: rgba(255, 255, 255, 0.2); 
+            padding: 8px;
+            border-radius: 15px;
+            display: flex; flex-direction: column; gap: 8px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
             z-index: 20;
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255,255,255,0.3);
         }
         .gear-btn {
-            width: 60px; height: 50px;
-            background: #3e4656;
+            width: 55px; height: 45px;
+            /* สีเทาโปร่งแสง */
+            background: rgba(62, 70, 86, 0.8);
             color: white;
-            border-radius: 12px;
+            border-radius: 10px;
             display: flex; justify-content: center; align-items: center;
-            font-weight: bold; font-size: 20px;
+            font-weight: bold; font-size: 18px;
             cursor: pointer;
             transition: all 0.2s;
-            border: 2px solid transparent;
+            border: 1px solid rgba(255,255,255,0.1);
         }
         .gear-active {
             background: #ffffff;
             color: #2f3542;
-            box-shadow: 0 0 15px rgba(255,255,255,0.5);
+            box-shadow: 0 0 15px rgba(255,255,255,0.6);
             font-weight: 900;
+            transform: scale(1.05);
         }
-        /* Specific Colors for Active States */
-        #btn-p.gear-active { color: #ff4757; } /* Red P */
-        #btn-r.gear-active { color: #ffa502; } /* Orange R */
-        #btn-n.gear-active { color: #2ed573; } /* Green N */
-        #btn-d.gear-active { color: #3742fa; } /* Blue D */
+        #btn-p.gear-active { color: #ff4757; }
+        #btn-r.gear-active { color: #ffa502; }
+        #btn-n.gear-active { color: #2ed573; }
+        #btn-d.gear-active { color: #3742fa; }
 
         /* --- Steering Wheel --- */
         .steering-container {
             position: absolute;
-            bottom: 40px;
+            bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
-            width: 160px;
-            height: 160px;
+            width: 150px; 
+            height: 150px;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -93,51 +111,60 @@
         #steering-wheel {
             width: 100%;
             height: 100%;
-            background: radial-gradient(circle, #333 30%, #111 70%);
+            /* ปรับสีให้ดูซอฟต์ลง */
+            background: radial-gradient(circle, #444 30%, #222 70%);
             border-radius: 50%;
-            border: 8px solid #444;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+            border: 6px solid #555;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
             position: relative;
             transition: transform 0.1s ease-out;
         }
         #steering-wheel::after {
             content: '';
             position: absolute; top: 0; left: 50%; transform: translateX(-50%);
-            width: 10px; height: 25px; background: #ff4757; border-radius: 0 0 5px 5px;
+            width: 8px; height: 20px; background: #ff4757; border-radius: 0 0 4px 4px;
         }
         #steering-wheel::before {
             content: '';
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 50px; height: 50px; background: #555; border-radius: 50%; border: 2px solid #777; z-index: 2;
+            width: 40px; height: 40px; background: #666; border-radius: 50%; border: 2px solid #888; z-index: 2;
         }
         #steering-touch-left, #steering-touch-right {
-            position: absolute; top: 0; width: 50%; height: 100%; cursor: pointer;
+            position: absolute; top: -20px; bottom: -20px; width: 60%; cursor: pointer;
         }
-        #steering-touch-left { left: 0; }
-        #steering-touch-right { right: 0; }
+        #steering-touch-left { left: -20px; }
+        #steering-touch-right { right: -20px; }
 
         /* --- Pedals --- */
         .pedals-group {
-            display: flex; align-items: flex-end; gap: 20px;
+            display: flex; align-items: flex-end; gap: 15px;
             z-index: 20;
         }
         .pedal {
-            background: #2f3542;
-            border-radius: 15px;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+            /* ปรับให้โปร่งแสงและเบาขึ้น */
+            background: rgba(47, 53, 66, 0.7);
+            border-radius: 12px;
+            box-shadow: 0 5px 10px rgba(0,0,0,0.2);
             display: flex; flex-direction: column; justify-content: flex-end; align-items: center;
-            padding-bottom: 15px;
-            color: #a4b0be; font-weight: bold; font-size: 14px;
+            padding-bottom: 10px;
+            color: #d1d8e0; font-weight: bold; font-size: 12px;
             transition: transform 0.1s, background 0.1s;
             cursor: pointer;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255,255,255,0.1);
         }
-        #pedal-brake { width: 100px; height: 100px; }
-        #pedal-gas { width: 70px; height: 160px; background: #000; }
+        #pedal-brake { width: 80px; height: 90px; }
+        #pedal-gas { 
+            width: 60px; height: 140px; 
+            /* คันเร่งสีดำจางลง */
+            background: rgba(0, 0, 0, 0.75); 
+        }
 
         .pedal-pressed {
             transform: scale(0.95) translateY(5px);
-            background: #57606f !important;
+            background: rgba(87, 96, 111, 0.9) !important;
             color: white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
 
         /* Start Screen */
@@ -147,7 +174,7 @@
             display: flex; flex-direction: column; align-items: center; justify-content: center;
         }
         .start-btn-big {
-            padding: 20px 60px; background: #ff4757; color: white; font-size: 24px;
+            padding: 15px 50px; background: #ff4757; color: white; font-size: 20px;
             border: none; border-radius: 50px; cursor: pointer;
             box-shadow: 0 10px 30px rgba(255, 71, 87, 0.4);
             font-weight: bold; transition: transform 0.1s;
@@ -155,14 +182,42 @@
         .start-btn-big:active { transform: scale(0.95); }
 
         #message {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            background: rgba(0,0,0,0.8); color: white; padding: 15px 30px;
-            border-radius: 30px; font-size: 20px; display: none; pointer-events: none;
+            position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.8); color: white; padding: 10px 20px;
+            border-radius: 30px; font-size: 18px; display: none; pointer-events: none;
+            white-space: nowrap;
         }
         
         #loading-msg {
             position: absolute; top: 20%; width: 100%; text-align: center;
             color: #555; font-size: 14px; pointer-events: none; display: none; font-weight: bold;
+        }
+
+        /* --- Mobile Responsive (Landscape) --- */
+        @media (max-height: 500px) {
+            .gear-btn { width: 45px; height: 40px; font-size: 16px; }
+            .gear-container { gap: 5px; padding: 5px; }
+            #steering-wheel { border-width: 5px; }
+            .steering-container { width: 120px; height: 120px; bottom: 10px; }
+            #pedal-brake { width: 70px; height: 80px; }
+            #pedal-gas { width: 55px; height: 120px; }
+            #top-bar { margin: 10px; padding: 8px 15px; }
+            .speed-val { font-size: 22px; }
+            #controls { padding: 0 15px 15px 15px; }
+        }
+
+        /* --- Rotate Warning (Portrait) --- */
+        #rotate-msg {
+            display: none;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #2f3542; color: white; z-index: 100;
+            flex-direction: column; justify-content: center; align-items: center; text-align: center;
+        }
+        .rotate-icon { font-size: 40px; margin-bottom: 20px; animation: rotate 2s infinite; }
+        @keyframes rotate { 0% { transform: rotate(0deg); } 50% { transform: rotate(90deg); } 100% { transform: rotate(0deg); } }
+        
+        @media (orientation: portrait) {
+            #rotate-msg { display: flex; }
         }
     </style>
     <!-- Three.js & GLTFLoader -->
@@ -172,6 +227,13 @@
 <body>
 
     <div id="container"></div>
+    
+    <!-- Rotate Screen Warning -->
+    <div id="rotate-msg">
+        <div class="rotate-icon">📱</div>
+        <h2>กรุณาหมุนจอเป็นแนวนอน</h2>
+        <p>เพื่อประสบการณ์การขับขี่ที่ดีที่สุด</p>
+    </div>
 
     <div id="game-ui">
         <div id="top-bar">
@@ -209,7 +271,7 @@
     </div>
 
     <div id="start-screen">
-        <h1 style="color:#2f3542; font-size: 40px;">MINI AUTO PRND</h1>
+        <h1 style="color:#2f3542; font-size: 32px; margin-bottom: 10px;">MINI AUTO PRND</h1>
         <p style="color:#777; margin-bottom: 30px;">แตะที่พวงมาลัยเพื่อเลี้ยว</p>
         <button class="start-btn-big" onclick="startGame()">START ENGINE</button>
     </div>
@@ -239,7 +301,9 @@
             camera = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 0.1, 500);
             camera.position.set(0, 6, -12);
 
-            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+            // ปรับPixelRatio เพื่อความคมชัดบนมือถือ
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
             renderer.setSize(window.innerWidth, window.innerHeight);
             renderer.shadowMap.enabled = true;
             renderer.outputEncoding = THREE.sRGBEncoding;
@@ -250,8 +314,9 @@
             const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
             dirLight.position.set(20, 50, 20);
             dirLight.castShadow = true;
-            dirLight.shadow.mapSize.width = 2048;
-            dirLight.shadow.mapSize.height = 2048;
+            // Optimize shadow map for mobile
+            dirLight.shadow.mapSize.width = 1024;
+            dirLight.shadow.mapSize.height = 1024;
             scene.add(dirLight);
 
             const ground = new THREE.Mesh(
@@ -484,8 +549,8 @@
                 const down = (e) => { e.preventDefault(); inputs[key] = true; if(el.classList.contains('pedal')) el.classList.add('pedal-pressed'); };
                 const up = (e) => { e.preventDefault(); inputs[key] = false; if(el.classList.contains('pedal')) el.classList.remove('pedal-pressed'); };
                 
-                el.addEventListener('touchstart', down);
-                el.addEventListener('touchend', up);
+                el.addEventListener('touchstart', down, {passive: false});
+                el.addEventListener('touchend', up, {passive: false});
                 el.addEventListener('mousedown', down);
                 el.addEventListener('mouseup', up);
                 el.addEventListener('mouseleave', up);
@@ -529,6 +594,10 @@
             spawnProps();
             setGear('P');
             isPlaying = true;
+            // Fullscreen request attempt
+            if (document.documentElement.requestFullscreen) {
+                document.documentElement.requestFullscreen().catch(err => console.log(err));
+            }
         }
         
         function resetGame() {
