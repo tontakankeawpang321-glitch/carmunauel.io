@@ -493,35 +493,40 @@
             loadingMsg.style.display = 'block';
 
             // ใช้ลิงก์ออนไลน์เพื่อให้เห็นรถทันที (ถ้าคุณมีไฟล์ car.glb ให้แก้ตรงนี้กลับเป็น './car.glb')
-            const modelUrl = '2017_chevrolet_colorado_zr2.glb'; 
+            const modelUrl = '/2017_chevrolet_colorado_zr2.glb'; 
 
             loader.load(
                 modelUrl,
                 (gltf) => {
                     scene.remove(car);
                     car = gltf.scene;
-                    
-                    // 1. ปรับ Scale ให้เล็กลงตามคำแนะนำ (0.01)
-                    car.scale.set(0.01, 0.01, 0.01); 
-                    
-                    // หมุนให้หันหน้าถูกทาง (สำหรับโมเดล Ferrari ตัวอย่าง)
-                    car.rotation.y = Math.PI; 
 
-                    // 2. 🔥 Auto Center Logic (สำคัญมาก)
-                    // คำนวณกล่อง Bounding Box ของรถ แล้วย้ายรถกลับมาที่จุดศูนย์กลาง (0,0,0)
-                    const box = new THREE.Box3().setFromObject(car);
-                    const center = box.getCenter(new THREE.Vector3());
-                    
-                    car.position.sub(center); // ลบค่า Center ออกเพื่อให้รถกลับมาอยู่ตรงกลาง
-                    car.position.y = 0;       // วางบนพื้นพอดี
-
-                    // เปิดเงา
+                    // ✅ เปิดเงา
                     car.traverse(o => {
                         if (o.isMesh) {
                             o.castShadow = true;
                             o.receiveShadow = true;
                         }
                     });
+
+                    // ✅ คำนวณขนาดจริง
+                    const box = new THREE.Box3().setFromObject(car);
+                    const size = box.getSize(new THREE.Vector3());
+                    const center = box.getCenter(new THREE.Vector3());
+
+                    console.log("MODEL SIZE:", size);
+
+                    // ✅ ย่อ/ขยายอัตโนมัติให้สูง ~3 หน่วย
+                    const maxDim = Math.max(size.x, size.y, size.z);
+                    const scale = 3 / maxDim;
+                    car.scale.setScalar(scale);
+
+                    // ✅ จัดให้อยู่กลางฉาก (ต้องคูณ scale เพื่อให้ตำแหน่งแม่นยำหลังย่อขยาย)
+                    car.position.sub(center.multiplyScalar(scale));
+                    car.position.y = 0; // วางบนพื้น
+
+                    // ✅ หันหน้าถูกทิศ (กลับด้าน 180 องศา)
+                    car.rotation.y = Math.PI;
 
                     scene.add(car);
                     loadingMsg.style.display = 'none';
