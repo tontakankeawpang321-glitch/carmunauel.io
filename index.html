@@ -10,16 +10,23 @@
     <style>
         body { font-family: 'Kanit', sans-serif; background-color: #f3f4f6; -webkit-tap-highlight-color: transparent; }
         
-        /* Custom Scrollbar for hidden feel */
+        /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 0px; background: transparent; }
         
-        /* UPDATED: touch-action: none allows multi-touch without browser interference */
-        .pedal { transition: transform 0.1s, filter 0.2s; cursor: pointer; touch-action: none; -webkit-user-select: none; user-select: none; }
+        /* Disable text selection and ensure touch action is immediate */
+        .pedal, .gear-btn, .sim-btn { 
+            cursor: pointer; 
+            touch-action: none; 
+            -webkit-user-select: none; 
+            user-select: none; 
+            -webkit-touch-callout: none;
+        }
+
+        .pedal { transition: transform 0.1s, filter 0.2s; }
         .pedal:active, .pedal.pressed { transform: translateY(8px) scale(0.95); filter: brightness(1.2); }
         .pedal.locked { filter: brightness(1.2) sepia(1) hue-rotate(-50deg) saturate(3); transform: translateY(8px); border-color: #f59e0b; }
 
-        /* UPDATED: touch-action: none for gear buttons too */
-        .gear-btn { transition: all 0.2s; touch-action: none; -webkit-user-select: none; user-select: none; }
+        .gear-btn { transition: all 0.2s; }
         .gear-btn.active { background-color: #2563eb; color: white; transform: scale(1.1); box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4); }
 
         .needle { transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1); transform-origin: bottom center; }
@@ -30,21 +37,14 @@
         .sub-tab { transition: all 0.3s; border-bottom: 2px solid transparent; opacity: 0.6; }
         .sub-tab.active { border-color: #2563eb; color: #2563eb; opacity: 1; font-weight: 600; }
 
-        /* Animations */
         .fade-in { animation: fadeIn 0.3s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Disable select */
         .no-select { user-select: none; -webkit-user-select: none; }
-        
-        /* Card Hover */
         .external-card:active { transform: scale(0.98); }
-
-        /* Sim Control Button Helper */
-        .sim-btn { touch-action: none; user-select: none; }
     </style>
 </head>
-<body class="bg-gray-100 h-screen flex flex-col overflow-hidden text-gray-800">
+<body class="bg-gray-100 h-screen flex flex-col overflow-hidden text-gray-800" oncontextmenu="return false;">
 
     <!-- Top Header -->
     <header class="bg-white shadow-sm px-4 py-3 flex justify-between items-center z-20 shrink-0">
@@ -64,7 +64,6 @@
         
         <!-- SECTION 1: KNOWLEDGE (ความรู้) -->
         <div id="section-knowledge" class="fade-in min-h-full">
-            <!-- Sub Navigation for Knowledge -->
             <div class="sticky top-0 bg-white shadow-sm z-10 px-4 pt-2 overflow-x-auto whitespace-nowrap no-scrollbar">
                 <div class="flex gap-6 pb-2">
                     <button onclick="switchSubTab('knowledge', 'license')" id="tab-license" class="sub-tab active pb-2">ขั้นตอนใบขับขี่</button>
@@ -135,7 +134,7 @@
                     </div>
                 </div>
 
-                <!-- 2. Manual Info (New) -->
+                <!-- 2. Manual Info (Full Content Restored) -->
                 <div id="content-manual-info" class="knowledge-content hidden">
                     <div class="bg-blue-600 rounded-2xl p-6 text-white shadow-lg mb-6">
                         <i class="fas fa-cogs text-4xl mb-2 opacity-80"></i>
@@ -146,9 +145,7 @@
                     <div class="bg-white p-6 rounded-xl shadow-sm mb-4">
                         <h3 class="font-bold text-lg mb-4 text-blue-800 border-b pb-2">หัวใจสำคัญ: "คลัตช์" (Clutch)</h3>
                         <div class="flex gap-4 items-center mb-4">
-                            <div class="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center text-2xl">
-                                🦵
-                            </div>
+                            <div class="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center text-2xl">🦵</div>
                             <div class="text-sm text-gray-600">
                                 <p><b>เมื่อไหร่ต้องเหยียบ?</b> ทุกครั้งที่สตาร์ทรถ, เปลี่ยนเกียร์, หรือกำลังจะจอดสนิท</p>
                                 <p class="mt-1"><b>เมื่อไหร่ต้องปล่อย?</b> เมื่อต้องการให้รถเคลื่อนที่ (ปล่อยช้าๆ) หรือเมื่อเปลี่ยนเกียร์เสร็จแล้ว</p>
@@ -182,7 +179,7 @@
                     </div>
                 </div>
 
-                <!-- 3. Auto Info (New) -->
+                <!-- 3. Auto Info (Full Content Restored) -->
                 <div id="content-auto-info" class="knowledge-content hidden">
                     <div class="bg-green-600 rounded-2xl p-6 text-white shadow-lg mb-6">
                         <i class="fas fa-magic text-4xl mb-2 opacity-80"></i>
@@ -234,10 +231,10 @@
                         </div>
                     </div>
                 </div>
-
-                <!-- 4. Moto Info -->
-                <div id="content-moto-info" class="knowledge-content hidden">
-                    <div class="bg-orange-500 rounded-2xl p-6 text-white shadow-lg mb-6 relative overflow-hidden">
+                
+                 <!-- 4. Moto Info (Full Content Restored) -->
+                 <div id="content-moto-info" class="knowledge-content hidden">
+                     <div class="bg-orange-500 rounded-2xl p-6 text-white shadow-lg mb-6 relative overflow-hidden">
                         <i class="fas fa-motorcycle absolute -right-4 -bottom-4 text-8xl opacity-20"></i>
                         <h2 class="text-2xl font-bold mb-2">คู่มือขี่มอเตอร์ไซค์</h2>
                         <p class="opacity-90 text-sm">เทคนิคพื้นฐานและความปลอดภัย</p>
@@ -286,8 +283,8 @@
                     </div>
                 </div>
 
-                <!-- 5. Bike Info -->
-                <div id="content-bike-info" class="knowledge-content hidden">
+                 <!-- 5. Bike Info (Full Content Restored) -->
+                 <div id="content-bike-info" class="knowledge-content hidden">
                     <div class="bg-green-600 rounded-2xl p-6 text-white shadow-lg mb-6">
                         <h2 class="text-2xl font-bold mb-2">จักรยานปลอดภัย</h2>
                         <p class="opacity-90 text-sm">กฎจราจรสำหรับนักปั่น</p>
@@ -302,307 +299,6 @@
                             <p class="text-sm"><i class="fas fa-hand-paper w-6 text-center text-green-600"></i> <b>เลี้ยวขวา:</b> ยื่นแขนขวาออกไปเสมอไหล่</p>
                             <p class="text-sm"><i class="fas fa-hand-paper w-6 text-center text-green-600"></i> <b>หยุดรถ:</b> ยกแขนขวาตั้งฉากขึ้น</p>
                         </div>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-
-        <!-- SECTION 2: SIMULATOR (ห้องทดลอง) - Internal Simulators (Restored) -->
-        <div id="section-sim" class="fade-in min-h-full hidden">
-             <!-- Sub Navigation for Sim -->
-             <div class="sticky top-0 bg-white shadow-sm z-10 px-4 pt-2">
-                <div class="flex gap-6 pb-2 justify-center">
-                    <button onclick="switchSubTab('sim', 'manual')" id="tab-manual" class="sub-tab active pb-2">เกียร์ธรรมดา</button>
-                    <button onclick="switchSubTab('sim', 'auto')" id="tab-auto" class="sub-tab pb-2">เกียร์ออโต้</button>
-                </div>
-            </div>
-
-            <div class="p-2 md:p-4 h-full">
-                <!-- MANUAL SIMULATOR -->
-                <div id="content-manual" class="sim-content h-full flex flex-col items-center">
-                    <div class="w-full max-w-lg bg-white rounded-xl shadow-sm p-3 mb-4 flex gap-3 border-l-4 border-blue-500 relative">
-                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Instructor" class="w-10 h-10 rounded-full bg-blue-50">
-                        <div class="flex-1">
-                            <p class="text-xs font-bold text-blue-900 mb-1">ครูฝึกเกียร์ธรรมดา</p>
-                            <p id="manual-instruction" class="text-sm text-gray-700 leading-tight">เริ่มจากเช็คเกียร์ว่าง (N) เหยียบ <b>คลัตช์</b> ค้างไว้แล้วกดสตาร์ท</p>
-                            <div class="flex gap-2 mt-2 justify-end">
-                                <button onclick="manualTutorial.prev()" class="px-3 py-1 bg-gray-100 rounded text-xs hover:bg-gray-200">ย้อน</button>
-                                <button onclick="manualTutorial.next()" class="px-3 py-1 bg-blue-600 text-white rounded text-xs hover:bg-blue-700 shadow-sm">ถัดไป</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="w-full max-w-lg flex-1 bg-gray-800 rounded-2xl p-4 relative flex flex-col items-center justify-between min-h-[400px] border-4 border-gray-700 shadow-inner">
-                        <div class="flex gap-4 mb-4 transform scale-90">
-                            <div class="relative w-24 h-24 bg-black rounded-full border-2 border-gray-600 flex items-center justify-center">
-                                <div class="absolute w-1 h-10 bg-red-500 bottom-1/2 left-1/2 -ml-0.5 origin-bottom needle" id="manual-speed-needle" style="transform: rotate(-120deg)"></div>
-                                <span class="absolute bottom-6 text-white font-bold text-lg" id="manual-speed-text">0</span>
-                                <span class="absolute bottom-2 text-gray-500 text-[10px]">km/h</span>
-                            </div>
-                            <div class="relative w-24 h-24 bg-black rounded-full border-2 border-gray-600 flex items-center justify-center">
-                                <div class="absolute w-1 h-10 bg-yellow-400 bottom-1/2 left-1/2 -ml-0.5 origin-bottom needle" id="manual-rpm-needle" style="transform: rotate(-120deg)"></div>
-                                <span class="absolute bottom-6 text-white font-bold text-lg" id="manual-rpm-text">0</span>
-                                <span class="absolute bottom-2 text-gray-500 text-[10px]">x1000</span>
-                            </div>
-                        </div>
-                        <button onclick="toggleManualEngine()" class="sim-btn absolute top-4 right-4 w-12 h-12 rounded-full bg-red-600 border-2 border-red-800 shadow text-white font-bold text-[10px] flex flex-col items-center justify-center active:scale-95 transition">
-                            <i class="fas fa-power-off mb-0.5"></i> <span id="manual-status-text">START</span>
-                        </button>
-                        <!-- Adjusted margin-bottom (mb-12) to increase space between gear stick and pedals -->
-                        <div class="bg-gray-200 p-2 rounded-full w-40 h-40 flex items-center justify-center shadow-lg relative mt-2 mb-12">
-                             <div class="grid grid-cols-3 gap-2 relative z-10">
-                                <button onclick="shiftManual(1)" id="gear-1" class="gear-btn w-9 h-9 rounded-full bg-gray-300 font-bold text-gray-600 text-sm">1</button>
-                                <button onclick="shiftManual(3)" id="gear-3" class="gear-btn w-9 h-9 rounded-full bg-gray-300 font-bold text-gray-600 text-sm">3</button>
-                                <button onclick="shiftManual(5)" id="gear-5" class="gear-btn w-9 h-9 rounded-full bg-gray-300 font-bold text-gray-600 text-sm">5</button>
-                                <button onclick="shiftManual(2)" id="gear-2" class="gear-btn w-9 h-9 rounded-full bg-gray-300 font-bold text-gray-600 text-sm">2</button>
-                                <button onclick="shiftManual(4)" id="gear-4" class="gear-btn w-9 h-9 rounded-full bg-gray-300 font-bold text-gray-600 text-sm">4</button>
-                                <button onclick="shiftManual('R')" id="gear-R" class="gear-btn w-9 h-9 rounded-full bg-red-100 text-red-600 font-bold text-sm">R</button>
-                            </div>
-                             <div class="absolute -bottom-6 bg-gray-900 text-white px-2 py-0.5 rounded text-xs font-mono">Gear: <span id="manual-gear-display" class="text-yellow-400">N</span></div>
-                        </div>
-                        <div class="flex gap-2 w-full justify-center mt-auto no-select">
-                            <div class="flex flex-col items-center">
-                                <div id="pedal-clutch" 
-                                     ontouchstart="event.preventDefault(); pressClutch(true)" ontouchend="event.preventDefault(); pressClutch(false)"
-                                     onmousedown="pressClutch(true)" onmouseup="pressClutch(false)"
-                                     class="pedal w-16 h-24 bg-gradient-to-b from-gray-600 to-gray-800 rounded-lg border-b-4 border-gray-900 shadow-lg relative">
-                                </div>
-                                <span class="text-gray-400 text-xs mt-1">คลัตช์</span>
-                            </div>
-                            <div class="flex flex-col items-center">
-                                <div id="pedal-brake" 
-                                     ontouchstart="event.preventDefault(); pressBrake(true)" ontouchend="event.preventDefault(); pressBrake(false)"
-                                     onmousedown="pressBrake(true)" onmouseup="pressBrake(false)"
-                                     class="pedal w-14 h-20 bg-gradient-to-b from-gray-600 to-gray-800 rounded-lg border-b-4 border-gray-900 shadow-lg relative mx-2">
-                                </div>
-                                <span class="text-gray-400 text-xs mt-1">เบรก</span>
-                            </div>
-                            <div class="flex flex-col items-center">
-                                <div id="pedal-gas" 
-                                     ontouchstart="event.preventDefault(); pressGas(true)" ontouchend="event.preventDefault(); pressGas(false)"
-                                     onmousedown="pressGas(true)" onmouseup="pressGas(false)"
-                                     class="pedal w-10 h-24 bg-gradient-to-b from-gray-700 to-black rounded-lg border-b-4 border-gray-900 shadow-lg relative">
-                                </div>
-                                <span class="text-gray-400 text-xs mt-1">คันเร่ง</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- AUTO SIMULATOR -->
-                <div id="content-auto" class="sim-content h-full hidden flex flex-col items-center">
-                     <div class="w-full max-w-lg bg-white rounded-xl shadow-sm p-3 mb-4 flex gap-3 border-l-4 border-green-500 relative">
-                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=InstructorAuto" class="w-10 h-10 rounded-full bg-green-50">
-                        <div class="flex-1">
-                            <p class="text-xs font-bold text-green-900 mb-1">ครูฝึกเกียร์ออโต้</p>
-                            <p id="auto-instruction" class="text-sm text-gray-700 leading-tight">เหยียบ <b>เบรก</b> ค้างไว้ก่อนสตาร์ท หรือเข้าเกียร์เสมอ</p>
-                            <div class="flex gap-2 mt-2 justify-end">
-                                <button onclick="autoTutorial.prev()" class="px-3 py-1 bg-gray-100 rounded text-xs hover:bg-gray-200">ย้อน</button>
-                                <button onclick="autoTutorial.next()" class="px-3 py-1 bg-green-600 text-white rounded text-xs hover:bg-green-700 shadow-sm">ถัดไป</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="w-full max-w-lg flex-1 bg-gray-200 rounded-2xl p-4 relative flex flex-col items-center justify-between min-h-[400px] border-4 border-white shadow-inner">
-                         <div class="w-full flex justify-between items-center bg-white p-3 rounded-xl shadow-sm mb-4">
-                             <div>
-                                 <div class="text-[10px] text-gray-400 uppercase font-bold">ความเร็ว</div>
-                                 <div class="text-2xl font-bold text-gray-800"><span id="auto-speed">0</span> <span class="text-sm font-normal text-gray-500">km/h</span></div>
-                             </div>
-                             <div class="text-right">
-                                 <button onclick="toggleAutoEngine()" class="sim-btn bg-red-500 hover:bg-red-600 text-white text-xs px-4 py-2 rounded-lg shadow font-bold transition">
-                                     <i class="fas fa-power-off mr-1"></i> <span id="auto-status-text">START</span>
-                                 </button>
-                                 <div id="auto-engine-dot" class="w-2 h-2 rounded-full bg-red-300 mx-auto mt-1"></div>
-                             </div>
-                         </div>
-                         <div class="flex-1 flex w-full gap-4 items-end justify-between px-2">
-                            <div class="bg-gray-800 p-2 rounded-2xl shadow-xl">
-                                <div class="flex flex-col gap-2">
-                                    <button onclick="shiftAuto('P')" id="auto-P" class="sim-btn w-12 h-10 rounded bg-gray-700 text-white font-bold text-sm border-l-4 border-transparent transition">P</button>
-                                    <button onclick="shiftAuto('R')" id="auto-R" class="sim-btn w-12 h-10 rounded bg-gray-700 text-white font-bold text-sm border-l-4 border-transparent transition">R</button>
-                                    <button onclick="shiftAuto('N')" id="auto-N" class="sim-btn w-12 h-10 rounded bg-gray-700 text-white font-bold text-sm border-l-4 border-transparent transition">N</button>
-                                    <button onclick="shiftAuto('D')" id="auto-D" class="sim-btn w-12 h-10 rounded bg-gray-700 text-white font-bold text-sm border-l-4 border-transparent transition">D</button>
-                                </div>
-                            </div>
-                            <div class="flex gap-4 no-select items-end">
-                                <div class="flex flex-col items-center">
-                                    <div id="auto-brake" 
-                                         ontouchstart="event.preventDefault(); pressAutoBrake(true)" ontouchend="event.preventDefault(); if(!autoState.brakeLocked) pressAutoBrake(false)"
-                                         onmousedown="pressAutoBrake(true)" onmouseup="if(!autoState.brakeLocked) pressAutoBrake(false)"
-                                         onclick="toggleBrakeLock()"
-                                         class="pedal w-20 h-20 bg-gray-700 rounded-lg border-b-4 border-gray-900 shadow-xl flex items-center justify-center group relative">
-                                         <i class="fas fa-lock text-yellow-500 opacity-0 group-[.locked]:opacity-100 absolute top-2 transition-opacity text-xs"></i>
-                                         <span class="text-gray-400 text-[10px] mt-auto mb-1">แตะ=Lock</span>
-                                    </div>
-                                    <span class="text-gray-500 font-bold mt-2 text-xs">เบรก</span>
-                                </div>
-                                <div class="flex flex-col items-center">
-                                    <div id="auto-gas" 
-                                         ontouchstart="event.preventDefault(); pressAutoGas(true)" ontouchend="event.preventDefault(); pressAutoGas(false)"
-                                         onmousedown="pressAutoGas(true)" onmouseup="pressAutoGas(false)"
-                                         class="pedal w-12 h-32 bg-black rounded-t-lg border-b-4 border-gray-900 shadow-xl"></div>
-                                    <span class="text-gray-500 font-bold mt-2 text-xs">คันเร่ง</span>
-                                </div>
-                            </div>
-                         </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- SECTION 3: EXTERNAL LINKS (New Section with 3 Cards) -->
-        <div id="section-external" class="fade-in min-h-full hidden">
-            <div class="p-6">
-                <!-- UPDATED TITLE -->
-                <h2 class="text-2xl font-bold mb-4 text-gray-800 border-l-4 border-purple-500 pl-3">รถจำลอง</h2>
-                <p class="text-gray-500 mb-6 text-sm">เลือกรถที่คุณต้องการฝึก เพื่อเปิดหน้าต่างจำลองการขับขี่</p>
-
-               <!DOCTYPE html>
-<html lang="th">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Driving School Sim - Mobile App</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <style>
-        body { font-family: 'Kanit', sans-serif; background-color: #f3f4f6; -webkit-tap-highlight-color: transparent; }
-        
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 0px; background: transparent; }
-        
-        /* Disable text selection and ensure touch action is immediate */
-        .pedal, .gear-btn, .sim-btn { 
-            cursor: pointer; 
-            touch-action: none; 
-            -webkit-user-select: none; 
-            user-select: none; 
-            -webkit-touch-callout: none;
-        }
-
-        .pedal { transition: transform 0.1s, filter 0.2s; }
-        .pedal:active, .pedal.pressed { transform: translateY(8px) scale(0.95); filter: brightness(1.2); }
-        .pedal.locked { filter: brightness(1.2) sepia(1) hue-rotate(-50deg) saturate(3); transform: translateY(8px); border-color: #f59e0b; }
-
-        .gear-btn { transition: all 0.2s; }
-        .gear-btn.active { background-color: #2563eb; color: white; transform: scale(1.1); box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4); }
-
-        .needle { transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1); transform-origin: bottom center; }
-        
-        .nav-item.active { color: #2563eb; }
-        .nav-item.active i { transform: translateY(-2px); }
-        
-        .sub-tab { transition: all 0.3s; border-bottom: 2px solid transparent; opacity: 0.6; }
-        .sub-tab.active { border-color: #2563eb; color: #2563eb; opacity: 1; font-weight: 600; }
-
-        .fade-in { animation: fadeIn 0.3s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-
-        .no-select { user-select: none; -webkit-user-select: none; }
-        .external-card:active { transform: scale(0.98); }
-    </style>
-</head>
-<body class="bg-gray-100 h-screen flex flex-col overflow-hidden text-gray-800" oncontextmenu="return false;">
-
-    <!-- Top Header -->
-    <header class="bg-white shadow-sm px-4 py-3 flex justify-between items-center z-20 shrink-0">
-        <div class="flex items-center gap-2">
-            <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white">
-                <i class="fas fa-car-side"></i>
-            </div>
-            <h1 class="font-bold text-lg text-gray-800 tracking-tight">Driving Sim</h1>
-        </div>
-        <a href="https://www.dlt.go.th/" target="_blank" class="text-blue-600 text-xs font-semibold bg-blue-50 px-3 py-1 rounded-full">
-            DLT เว็บกรมขนส่งฯ
-        </a>
-    </header>
-
-    <!-- Main Content Area -->
-    <main class="flex-1 overflow-y-auto relative bg-gray-50 pb-20" id="main-container">
-        
-        <!-- SECTION 1: KNOWLEDGE (ความรู้) -->
-        <div id="section-knowledge" class="fade-in min-h-full">
-            <div class="sticky top-0 bg-white shadow-sm z-10 px-4 pt-2 overflow-x-auto whitespace-nowrap no-scrollbar">
-                <div class="flex gap-6 pb-2">
-                    <button onclick="switchSubTab('knowledge', 'license')" id="tab-license" class="sub-tab active pb-2">ขั้นตอนใบขับขี่</button>
-                    <button onclick="switchSubTab('knowledge', 'manual-info')" id="tab-manual-info" class="sub-tab pb-2">เกียร์ธรรมดา</button>
-                    <button onclick="switchSubTab('knowledge', 'auto-info')" id="tab-auto-info" class="sub-tab pb-2">เกียร์ออโต้</button>
-                    <button onclick="switchSubTab('knowledge', 'moto-info')" id="tab-moto-info" class="sub-tab pb-2">มอเตอร์ไซค์</button>
-                    <button onclick="switchSubTab('knowledge', 'bike-info')" id="tab-bike-info" class="sub-tab pb-2">จักรยาน</button>
-                </div>
-            </div>
-
-            <div class="p-4 space-y-4">
-                <!-- Content sections omitted for brevity (same as previous) but structure preserved -->
-                <div id="content-license" class="knowledge-content">
-                    <div class="bg-gradient-to-r from-blue-600 to-blue-800 rounded-2xl p-6 text-white shadow-lg mb-6">
-                        <h2 class="text-2xl font-bold mb-2">ทำใบขับขี่ไม่ยาก!</h2>
-                        <p class="opacity-90 text-sm">รวมขั้นตอนตั้งแต่เตรียมเอกสารจนถึงสอบผ่าน</p>
-                    </div>
-                    <!-- (License Info Content) -->
-                     <div class="grid gap-4 md:grid-cols-2">
-                        <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
-                            <div class="flex items-center gap-3 mb-3 text-blue-600 font-bold">
-                                <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">1</div>
-                                <span>เตรียมเอกสาร</span>
-                            </div>
-                            <ul class="text-sm text-gray-600 space-y-2 ml-11 list-disc">
-                                <li>บัตรประชาชนตัวจริง</li>
-                                <li>ใบรับรองแพทย์ (ไม่เกิน 1 เดือน)</li>
-                            </ul>
-                        </div>
-                        <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
-                            <div class="flex items-center gap-3 mb-3 text-purple-600 font-bold">
-                                <div class="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center">2</div>
-                                <span>ทดสอบสมรรถภาพ</span>
-                            </div>
-                            <div class="grid grid-cols-2 gap-2 text-xs text-gray-500 ml-11">
-                                <div class="bg-gray-50 p-2 rounded text-center">ตาบอดสี</div>
-                                <div class="bg-gray-50 p-2 rounded text-center">สายตาทางลึก</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="content-manual-info" class="knowledge-content hidden">
-                    <div class="bg-blue-600 rounded-2xl p-6 text-white shadow-lg mb-6">
-                        <i class="fas fa-cogs text-4xl mb-2 opacity-80"></i>
-                        <h2 class="text-2xl font-bold mb-1">เทคนิคเกียร์ธรรมดา</h2>
-                        <p class="opacity-90 text-sm">ขับสนุก คุมรถได้ดั่งใจ</p>
-                    </div>
-                    <div class="bg-white p-6 rounded-xl shadow-sm mb-4">
-                         <h3 class="font-bold text-lg mb-4 text-blue-800 border-b pb-2">หัวใจสำคัญ: "คลัตช์"</h3>
-                         <p class="text-sm text-gray-600">เหยียบให้สุดทุกครั้งที่เปลี่ยนเกียร์</p>
-                    </div>
-                </div>
-
-                <div id="content-auto-info" class="knowledge-content hidden">
-                    <div class="bg-green-600 rounded-2xl p-6 text-white shadow-lg mb-6">
-                        <i class="fas fa-magic text-4xl mb-2 opacity-80"></i>
-                        <h2 class="text-2xl font-bold mb-1">รู้จักเกียร์ออโต้</h2>
-                        <p class="opacity-90 text-sm">ขับง่าย สะดวกสบาย</p>
-                    </div>
-                     <div class="bg-white p-6 rounded-xl shadow-sm mb-4">
-                        <h3 class="font-bold text-lg mb-4 text-green-800 border-b pb-2">P-R-N-D</h3>
-                        <p class="text-sm text-gray-600">เหยียบเบรกก่อนเลื่อนเกียร์เสมอ</p>
-                    </div>
-                </div>
-                
-                 <div id="content-moto-info" class="knowledge-content hidden">
-                     <div class="bg-orange-500 rounded-2xl p-6 text-white shadow-lg mb-6">
-                        <i class="fas fa-motorcycle absolute -right-4 -bottom-4 text-8xl opacity-20"></i>
-                        <h2 class="text-2xl font-bold mb-2">คู่มือขี่มอเตอร์ไซค์</h2>
-                        <p class="opacity-90 text-sm">เทคนิคพื้นฐานและความปลอดภัย</p>
-                    </div>
-                </div>
-
-                 <div id="content-bike-info" class="knowledge-content hidden">
-                    <div class="bg-green-600 rounded-2xl p-6 text-white shadow-lg mb-6">
-                        <h2 class="text-2xl font-bold mb-2">จักรยานปลอดภัย</h2>
-                        <p class="opacity-90 text-sm">กฎจราจรสำหรับนักปั่น</p>
                     </div>
                 </div>
             </div>
@@ -959,11 +655,7 @@
             if(manualState.engine) {
                 manualState.engine = false; manualState.rpm = 0; manualState.speed = 0;
             } else {
-                // Modified condition: MUST press clutch to start (regardless of gear)
-                if (!manualState.clutch) {
-                    alert('⚠️ ต้องเหยียบคลัตช์ให้สุดก่อนกดปุ่มสตาร์ท');
-                    return;
-                }
+                // Modified: Removed clutch check to allow easier start / multi-touch
                 manualState.engine = true; manualState.rpm = 800;
             }
             updateManualUI();
@@ -1047,290 +739,6 @@
                 return;
             }
             // Strict P gear requirement for Auto start
-            if(autoState.gear !== 'P' && !autoState.engine) {
-                alert('⚠️ ต้องเข้าเกียร์ P ก่อนสตาร์ท');
-                return;
-            }
-            autoState.engine = !autoState.engine;
-            if(!autoState.engine) autoState.speed = 0;
-            updateAutoUI();
-        }
-
-        function shiftAuto(g) {
-            if(!autoState.brake && autoState.engine) {
-                alert('⚠️ เหยียบเบรกก่อนเปลี่ยนเกียร์เสมอ');
-                return;
-            }
-            autoState.gear = g;
-            updateAutoUI();
-        }
-
-        function pressAutoBrake(v) { 
-            if(autoState.brakeLocked && !v) return; 
-            autoState.brake = v; 
-            updateAutoUI(); 
-        }
-        function pressAutoGas(v) { autoState.gas = v; updateAutoUI(); }
-
-        setInterval(() => {
-            if(!autoState.engine) return;
-            if(autoState.gear === 'D') {
-                if(autoState.gas) autoState.speed += 1.2;
-                else if(!autoState.brake) autoState.speed = clamp(autoState.speed + 0.1, 0, 5); 
-                else autoState.speed -= 2;
-            } else if (autoState.gear === 'R') {
-                if(autoState.gas) autoState.speed += 0.8;
-            } else if (autoState.gear === 'N' || autoState.gear === 'P') {
-                autoState.speed -= 1;
-            }
-            if(autoState.brake) autoState.speed -= 3;
-            autoState.speed = clamp(autoState.speed, 0, 160);
-            updateAutoUI();
-        }, 50);
-
-        // Init
-        switchMainTab('knowledge');
-        switchSubTab('knowledge', 'license');
-
-    </script>
-</body>
-</html>
-                    </a>
-                </div>
-            </div>
-        </div>
-
-    </main>
-
-    <!-- Bottom Navigation Bar - UPDATED to 3 Tabs -->
-    <nav class="bg-white border-t border-gray-200 fixed bottom-0 w-full h-16 flex justify-around items-center z-30 pb-safe px-2">
-        <!-- 1. Knowledge -->
-        <button onclick="switchMainTab('knowledge')" id="nav-knowledge" class="nav-item active flex flex-col items-center justify-center w-full h-full text-gray-400 hover:bg-gray-50 transition">
-            <i class="fas fa-book-open text-xl mb-1 transition-transform duration-200"></i>
-            <span class="text-[10px] font-medium">คลังความรู้</span>
-        </button>
-        
-        <!-- 2. Internal Simulator -->
-        <button onclick="switchMainTab('sim')" id="nav-sim" class="nav-item flex flex-col items-center justify-center w-full h-full text-gray-400 hover:bg-gray-50 transition">
-            <i class="fas fa-gamepad text-xl mb-1 transition-transform duration-200"></i>
-            <span class="text-[10px] font-medium">ห้องทดลองขับ</span>
-        </button>
-
-        <!-- 3. External Links (Updated Title and Icon) -->
-        <button onclick="switchMainTab('external')" id="nav-external" class="nav-item flex flex-col items-center justify-center w-full h-full text-gray-400 hover:bg-gray-50 transition">
-            <i class="fas fa-car text-xl mb-1 transition-transform duration-200"></i>
-            <span class="text-[10px] font-medium">รถจำลอง</span>
-        </button>
-    </nav>
-
-    <script>
-        // --- Navigation Logic ---
-        let currentSection = 'knowledge';
-        
-        function switchMainTab(sectionId) {
-            currentSection = sectionId;
-            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active', 'text-blue-600'));
-            document.getElementById('nav-' + sectionId).classList.add('active', 'text-blue-600');
-            
-            // Hide all sections
-            document.getElementById('section-knowledge').classList.add('hidden');
-            document.getElementById('section-sim').classList.add('hidden');
-            document.getElementById('section-external').classList.add('hidden');
-            
-            // Show target section
-            const target = document.getElementById('section-' + sectionId);
-            target.classList.remove('hidden');
-            target.classList.add('fade-in');
-            setTimeout(() => target.classList.remove('fade-in'), 300);
-        }
-
-        function switchSubTab(section, tabId) {
-            const container = document.getElementById('section-' + section);
-            container.querySelectorAll('.sub-tab').forEach(el => el.classList.remove('active'));
-            document.getElementById('tab-' + tabId).classList.add('active');
-
-            if (section === 'knowledge') {
-                container.querySelectorAll('.knowledge-content').forEach(el => el.classList.add('hidden'));
-                const content = document.getElementById('content-' + tabId);
-                content.classList.remove('hidden');
-                content.classList.add('fade-in');
-            } else if (section === 'sim') {
-                container.querySelectorAll('.sim-content').forEach(el => el.classList.add('hidden'));
-                const content = document.getElementById('content-' + tabId);
-                content.classList.remove('hidden');
-                content.classList.add('fade-in');
-            }
-        }
-
-        // --- Tutorial System ---
-        class Tutorial {
-            constructor(data, textElementId) {
-                this.steps = data;
-                this.currentStep = 0;
-                this.textElement = document.getElementById(textElementId);
-            }
-            update() {
-                this.textElement.style.opacity = 0;
-                setTimeout(() => {
-                    this.textElement.innerHTML = this.steps[this.currentStep];
-                    this.textElement.style.opacity = 1;
-                }, 100);
-            }
-            next() {
-                if (this.currentStep < this.steps.length - 1) {
-                    this.currentStep++;
-                    this.update();
-                }
-            }
-            prev() {
-                if (this.currentStep > 0) {
-                    this.currentStep--;
-                    this.update();
-                }
-            }
-        }
-
-        const manualTutorial = new Tutorial([
-            "1. เริ่มต้น: เช็คเกียร์ว่าง (N) เหยียบ <b>คลัตช์</b> ค้างไว้แล้วกดปุ่ม START",
-            "2. เข้าเกียร์: เหยียบคลัตช์ค้างไว้ แตะที่เลข <b>1</b> เพื่อเข้าเกียร์ 1",
-            "3. ออกตัว: ค่อยๆ <b>ปล่อยคลัตช์</b> ช้าๆ พร้อมกับ <b>กดคันเร่ง</b> เบาๆ",
-            "4. ระวัง: ถ้าปล่อยคลัตช์เร็วไปโดยไม่เติมคันเร่ง เครื่องจะดับ!",
-            "5. เปลี่ยนเกียร์: เมื่อความเร็วถึง 20 ให้เหยียบคลัตช์ ผ่อนคันเร่ง แล้วเข้าเกียร์ 2"
-        ], 'manual-instruction');
-
-        const autoTutorial = new Tutorial([
-            "1. ความปลอดภัย: เกียร์ออโต้ต้อง <b>เหยียบเบรก</b> ก่อนสตาร์ทรถเสมอ",
-            "2. สตาร์ท: กดปุ่ม START ขณะที่เท้ายังเหยียบเบรกอยู่",
-            "3. เตรียมออกตัว: เหยียบเบรกค้างไว้ แล้วเปลี่ยนเกียร์มาที่ <b>D</b> (Drive)",
-            "4. ออกรถ: ค่อยๆ ปล่อยเบรก รถจะเริ่มไหล (Creep) แล้วค่อยเติมคันเร่ง",
-            "5. จอดรถ: เหยียบเบรกจนหยุดสนิท แล้วเปลี่ยนเกียร์ไปที่ <b>P</b> (Park)"
-        ], 'auto-instruction');
-
-        // --- Simulator Logic: Shared & Utils ---
-        function clamp(val, min, max) { return Math.min(Math.max(val, min), max); }
-
-        // --- Manual Car Logic ---
-        let manualState = { engine: false, rpm: 0, speed: 0, gear: 'N', clutch: false, gas: false, brake: false };
-        
-        function updateManualUI() {
-            // Needles
-            const rpmDeg = -120 + (manualState.rpm / 8000 * 240);
-            const speedDeg = -120 + (manualState.speed / 200 * 240);
-            document.getElementById('manual-rpm-needle').style.transform = `rotate(${rpmDeg}deg)`;
-            document.getElementById('manual-rpm-text').innerText = (manualState.rpm / 1000).toFixed(1);
-            document.getElementById('manual-speed-needle').style.transform = `rotate(${speedDeg}deg)`;
-            document.getElementById('manual-speed-text').innerText = Math.floor(manualState.speed);
-
-            const btn = document.getElementById('manual-status-text');
-            if(manualState.engine) {
-                btn.innerText = "STOP";
-                btn.parentElement.classList.add('bg-green-600', 'border-green-800');
-                btn.parentElement.classList.remove('bg-red-600', 'border-red-800');
-            } else {
-                btn.innerText = "START";
-                btn.parentElement.classList.add('bg-red-600', 'border-red-800');
-                btn.parentElement.classList.remove('bg-green-600', 'border-green-800');
-            }
-
-            document.getElementById('manual-gear-display').innerText = manualState.gear;
-            document.querySelectorAll('.gear-btn').forEach(b => b.classList.remove('active'));
-            if(manualState.gear !== 'N') document.getElementById('gear-'+manualState.gear).classList.add('active');
-
-            document.getElementById('pedal-clutch').classList.toggle('pressed', manualState.clutch);
-            document.getElementById('pedal-brake').classList.toggle('pressed', manualState.brake);
-            document.getElementById('pedal-gas').classList.toggle('pressed', manualState.gas);
-        }
-
-        function toggleManualEngine() {
-            if(manualState.engine) {
-                manualState.engine = false; manualState.rpm = 0; manualState.speed = 0;
-            } else {
-                if(manualState.gear !== 'N' && !manualState.clutch) {
-                    alert('⚠️ ต้องเหยียบคลัตช์ หรือเข้าเกียร์ว่าง (N) ก่อนสตาร์ท');
-                    return;
-                }
-                manualState.engine = true; manualState.rpm = 800;
-            }
-            updateManualUI();
-        }
-
-        function shiftManual(g) {
-            if(!manualState.clutch && manualState.engine) {
-                manualState.engine = false; manualState.rpm = 0; manualState.speed = 0;
-                alert('💥 เครื่องดับ! เปลี่ยนเกียร์ไม่เหยียบคลัตช์');
-            } else {
-                manualState.gear = (manualState.gear === g) ? 'N' : g;
-            }
-            updateManualUI();
-        }
-
-        function pressClutch(v) { manualState.clutch = v; updateManualUI(); }
-        function pressBrake(v) { manualState.brake = v; updateManualUI(); }
-        function pressGas(v) { manualState.gas = v; updateManualUI(); }
-
-        setInterval(() => {
-            if(!manualState.engine) return;
-            if(manualState.gas) {
-                if(manualState.clutch || manualState.gear === 'N') manualState.rpm = clamp(manualState.rpm + 200, 0, 7000);
-                else {
-                    manualState.rpm = clamp(manualState.rpm + 50, 0, 6000);
-                    manualState.speed = clamp(manualState.speed + 1.5, 0, 180);
-                }
-            } else {
-                manualState.rpm = clamp(manualState.rpm - 100, 800, 7000);
-                manualState.speed = clamp(manualState.speed - 0.5, 0, 180);
-            }
-            if(manualState.brake) manualState.speed = clamp(manualState.speed - 3, 0, 180);
-            if(manualState.gear !== 'N' && !manualState.clutch && manualState.rpm < 500 && manualState.speed === 0) {
-                manualState.engine = false; manualState.rpm = 0;
-            }
-            updateManualUI();
-        }, 50);
-
-        // --- Auto Car Logic (Fixed Bug) ---
-        let autoState = { engine: false, gear: 'P', speed: 0, brake: false, gas: false, brakeLocked: false };
-
-        function updateAutoUI() {
-            ['P','R','N','D'].forEach(g => {
-                const el = document.getElementById('auto-'+g);
-                if(autoState.gear === g) el.classList.add('bg-blue-600', 'text-white', 'border-blue-400');
-                else el.classList.remove('bg-blue-600', 'text-white', 'border-blue-400');
-            });
-
-            const statusText = document.getElementById('auto-status-text');
-            const statusDot = document.getElementById('auto-engine-dot');
-            if(autoState.engine) {
-                statusText.innerText = "STOP";
-                statusDot.classList.add('bg-green-500', 'animate-pulse');
-                statusDot.classList.remove('bg-red-300');
-            } else {
-                statusText.innerText = "START";
-                statusDot.classList.remove('bg-green-500', 'animate-pulse');
-                statusDot.classList.add('bg-red-300');
-            }
-            document.getElementById('auto-speed').innerText = Math.floor(autoState.speed);
-
-            const brakeEl = document.getElementById('auto-brake');
-            if(autoState.brake) {
-                brakeEl.classList.add('pressed');
-                if(autoState.brakeLocked) brakeEl.classList.add('locked');
-            } else {
-                brakeEl.classList.remove('pressed', 'locked');
-            }
-            document.getElementById('auto-gas').classList.toggle('pressed', autoState.gas);
-        }
-
-        function toggleBrakeLock() {
-            autoState.brakeLocked = !autoState.brakeLocked;
-            autoState.brake = autoState.brakeLocked;
-            updateAutoUI();
-        }
-
-        function toggleAutoEngine() {
-            if(!autoState.brake && !autoState.engine) {
-                alert('⚠️ กรุณาเหยียบเบรกก่อนกดปุ่มสตาร์ท');
-                return;
-            }
             if(autoState.gear !== 'P' && !autoState.engine) {
                 alert('⚠️ ต้องเข้าเกียร์ P ก่อนสตาร์ท');
                 return;
