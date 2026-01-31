@@ -53,10 +53,10 @@
         .control-row-upper {
             flex: 1.2;
             display: flex;
-            align-items: flex-end; /* เปลี่ยนจาก center เป็น flex-end เพื่อดันลงล่าง */
+            align-items: flex-end; /* ดันลงล่าง */
             justify-content: space-around;
             padding: 0 10px;
-            padding-bottom: 10px; /* เว้นระยะห่างจากแถวล่างเล็กน้อย */
+            padding-bottom: 10px; 
         }
 
         /* Lower Control Row: Pedals */
@@ -179,7 +179,6 @@
             width: 33%;
             height: 40%;
             z-index: 10;
-            /* background: rgba(255,0,0,0.2); Debug */ 
         }
         /* Top Row */
         .zone-1 { top: 0; left: 0; }
@@ -194,7 +193,7 @@
 
         /* --- Pedals --- */
         .pedal {
-            width: 55px;
+            width: 50px; /* Reduced width to fit 4 pedals */
             height: 90px;
             border-radius: 8px;
             border: 2px solid #bbb;
@@ -204,18 +203,24 @@
             padding-bottom: 8px;
             font-weight: bold;
             color: white;
-            font-size: 12px;
+            font-size: 10px; /* Smaller font */
             user-select: none;
             transition: transform 0.1s;
             box-shadow: 0 4px 0 #000;
+            margin: 0 2px;
         }
         .pedal:active { transform: scale(0.95) translateY(4px); box-shadow: 0 0 0 #000; }
+
+        #handbrake-btn { background: linear-gradient(to bottom, #444, #888); border-color: #888; height: 70px; align-self: flex-end; margin-right: 10px;}
+        #handbrake-btn.active-brake { background: linear-gradient(to bottom, #cc3333, #ff0000); border-color: red; box-shadow: 0 0 10px red; }
 
         #clutch { background: linear-gradient(to bottom, #444, #3366cc); }
         #brake { background: linear-gradient(to bottom, #444, #cc3333); height: 80px; width: 50px; }
         #gas { background: linear-gradient(to bottom, #444, #33cc33); }
 
-        .pedal-pressed { border-color: yellow !important; filter: brightness(1.2); }
+        .pedal-pressed { border-color: yellow !important; filter: brightness(1.2); transform: scale(0.95) translateY(4px); box-shadow: 0 0 0 #000; }
+        /* Locked visual for toggle clutch */
+        .clutch-locked { border-color: cyan !important; transform: scale(0.95) translateY(4px); box-shadow: 0 0 0 #000; filter: brightness(1.3); }
 
         /* Messages */
         #message {
@@ -338,6 +343,7 @@
 
             <!-- LOWER ROW: Pedals -->
             <div class="control-row-lower">
+                <div id="handbrake-btn" class="pedal">เบรกมือ</div>
                 <div id="clutch" class="pedal">คลัตช์</div>
                 <div id="brake" class="pedal">เบรก</div>
                 <div id="gas" class="pedal">คันเร่ง</div>
@@ -350,10 +356,10 @@
         <h2>Mini Manual Challenge</h2>
         <p>ขับหลบกรวย เก็บเหรียญ!</p>
         <ul style="text-align: left; font-size: 14px; color: #ccc; line-height: 1.6;">
-            <li>🎮 <b>ซ้ายบน:</b> พวงมาลัยบังคับทิศทาง</li>
-            <li>🕹️ <b>ขวาบน:</b> เหยียบคลัตช์เข้าเกียร์ (1-5)</li>
-            <li>⚠️ <b>ระวัง:</b> ห้ามชนกรวยยางเด็ดขาด!</li>
-            <li>🪙 <b>เป้าหมาย:</b> เก็บเหรียญทองให้ครบ</li>
+            <li>🔴 <b>เบรกมือ (P):</b> ต้องกดปลดก่อนเริ่ม!</li>
+            <li>🔵 <b>คลัตช์:</b> กด 1 ทีเพื่อเหยียบค้าง / กดซ้ำเพื่อปล่อย</li>
+            <li>🕹️ <b>เกียร์:</b> เหยียบคลัตช์ก่อนเข้าเกียร์</li>
+            <li>🪙 <b>เป้าหมาย:</b> เก็บเหรียญให้ครบ ห้ามชนกรวย</li>
         </ul>
         <button class="start-btn" onclick="startGame()">เริ่มเกม</button>
     </div>
@@ -378,7 +384,8 @@
         
         // Manual Transmission State
         let gear = 0;
-        let clutchPressed = false;
+        let clutchPressed = false; // Now acts as a toggle state
+        let handbrakeEngaged = true; // Handbrake state
         
         // Inputs
         let input = {
@@ -603,6 +610,14 @@
         function updatePhysics() {
             if (!car || isGameOver) return;
 
+            // Handbrake Logic: If engaged, car stops rapidly and cannot accelerate
+            if (handbrakeEngaged) {
+                speed *= 0.8; // Strong friction
+                if (Math.abs(speed) < 0.1) speed = 0;
+                
+                // RPM behaves like neutral/load depending on clutch, but car won't move much
+            }
+
             // RPM Logic
             let targetMaxSpeed = GEAR_RATIOS[gear].maxSpeed;
             let currentRatio = Math.abs(speed) / (Math.abs(targetMaxSpeed) || 1);
@@ -618,7 +633,8 @@
 
             // Move
             let acceleration = 0;
-            if (input.gas && !clutchPressed && gear !== 0) {
+            // Car moves only if gas is pressed, clutch is NOT pressed, gear is not N, and Handbrake is OFF
+            if (input.gas && !clutchPressed && gear !== 0 && !handbrakeEngaged) {
                 const torque = GEAR_RATIOS[gear].torque;
                 let powerFactor = rpm > 0.95 ? 0.2 : 1;
                 let dir = gear > 0 ? 1 : -1;
@@ -787,26 +803,57 @@
             addTouch(leftZone, 'left');
             addTouch(rightZone, 'right');
 
-            // Pedals
+            // Standard Pedals (Gas, Brake)
             const gasBtn = document.getElementById('gas');
             const brakeBtn = document.getElementById('brake');
-            const clutchBtn = document.getElementById('clutch');
             addTouch(gasBtn, 'gas');
             addTouch(brakeBtn, 'brake');
-
-            const handleClutch = (pressed) => {
-                clutchPressed = pressed;
-                clutchBtn.classList.toggle('pedal-pressed', pressed);
-            };
-            clutchBtn.addEventListener('touchstart', (e) => { e.preventDefault(); handleClutch(true); });
-            clutchBtn.addEventListener('touchend', (e) => { e.preventDefault(); handleClutch(false); });
-            clutchBtn.addEventListener('mousedown', () => handleClutch(true));
-            clutchBtn.addEventListener('mouseup', () => handleClutch(false));
-
             gasBtn.addEventListener('touchstart', () => gasBtn.classList.add('pedal-pressed'));
             gasBtn.addEventListener('touchend', () => gasBtn.classList.remove('pedal-pressed'));
             brakeBtn.addEventListener('touchstart', () => brakeBtn.classList.add('pedal-pressed'));
             brakeBtn.addEventListener('touchend', () => brakeBtn.classList.remove('pedal-pressed'));
+
+
+            // --- Handbrake Toggle Logic ---
+            const handbrakeBtn = document.getElementById('handbrake-btn');
+            
+            const toggleHandbrake = () => {
+                handbrakeEngaged = !handbrakeEngaged;
+                if(handbrakeEngaged) {
+                    handbrakeBtn.classList.add('active-brake');
+                    showMessage("ดึงเบรกมือ!");
+                } else {
+                    handbrakeBtn.classList.remove('active-brake');
+                    showMessage("ปลดเบรกมือแล้ว");
+                }
+            };
+
+            // Toggle on click/tap
+            handbrakeBtn.addEventListener('click', (e) => { e.preventDefault(); toggleHandbrake(); });
+            handbrakeBtn.addEventListener('touchstart', (e) => { e.preventDefault(); toggleHandbrake(); });
+
+
+            // --- Clutch Toggle Logic ---
+            const clutchBtn = document.getElementById('clutch');
+            
+            const toggleClutch = () => {
+                if(handbrakeEngaged) {
+                    showMessage("ต้องปลดเบรกมือก่อน!");
+                    return;
+                }
+
+                clutchPressed = !clutchPressed;
+                if(clutchPressed) {
+                    clutchBtn.classList.add('clutch-locked');
+                } else {
+                    clutchBtn.classList.remove('clutch-locked');
+                }
+            };
+            
+            // Toggle on click/tap (PreventDefault to avoid double firing)
+            clutchBtn.addEventListener('click', (e) => { e.preventDefault(); toggleClutch(); });
+            clutchBtn.addEventListener('touchstart', (e) => { e.preventDefault(); toggleClutch(); });
+
 
             // Gear Shifter (Touch Zones)
             document.querySelectorAll('.gear-touch-zone').forEach(zone => {
@@ -825,7 +872,8 @@
                     case 'ArrowDown': input.brake = true; document.getElementById('brake').classList.add('pedal-pressed'); break;
                     case 'ArrowLeft': input.left = true; break;
                     case 'ArrowRight': input.right = true; break;
-                    case 'Shift': handleClutch(true); break;
+                    case 'Shift': toggleClutch(); break; // Shift toggles clutch
+                    case 'p': case 'P': toggleHandbrake(); break; // P toggles handbrake
                     case '1': selectGear(1); break;
                     case '2': selectGear(2); break;
                     case '3': selectGear(3); break;
@@ -841,7 +889,6 @@
                     case 'ArrowDown': input.brake = false; document.getElementById('brake').classList.remove('pedal-pressed'); break;
                     case 'ArrowLeft': input.left = false; break;
                     case 'ArrowRight': input.right = false; break;
-                    case 'Shift': handleClutch(false); break;
                 }
             });
         }
@@ -874,13 +921,21 @@
             carAngle = 0;
             rpm = 0;
             
+            // Initial Car State
+            handbrakeEngaged = true; // Start with Handbrake ON
+            clutchPressed = false;
+            
+            // Reset UI Visuals
+            document.getElementById('handbrake-btn').classList.add('active-brake'); // Show P as active
+            document.getElementById('clutch').classList.remove('clutch-locked');
+            
             if(car) {
                 car.position.set(0, 0, 0);
                 car.rotation.set(0, 0, 0);
             }
             
             spawnCoins(15);
-            spawnObstacles(20); // Add 20 cones
+            spawnObstacles(20); 
             
             isGameOver = false;
             isPlaying = true;
