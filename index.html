@@ -493,7 +493,7 @@
             loadingMsg.style.display = 'block';
 
             // ใช้ลิงก์ออนไลน์เพื่อให้เห็นรถทันที (ถ้าคุณมีไฟล์ car.glb ให้แก้ตรงนี้กลับเป็น './car.glb')
-            const modelUrl = '2017_chevrolet_colorado_zr2.glb'; 
+            const modelUrl = 'https://cdn.jsdelivr.net/gh/mrdoob/three.js@master/examples/models/gltf/Ferrari.glb'; 
 
             loader.load(
                 modelUrl,
@@ -515,11 +515,11 @@
 
                     // ✅ ย่อ/ขยายอัตโนมัติให้สูง ~3 หน่วย
                     const maxDim = Math.max(size.x, size.y, size.z);
-                    const scale = 7 / maxDim;
+                    const scale = 3 / maxDim;
                     car.scale.setScalar(scale);
 
                     // 🔥 คำนวณใหม่หลัง scale
-                    car.updateMatrixWorld(); // อัปเดต Matrix ให้แน่ใจว่า Box ถูกต้อง
+                    car.updateMatrixWorld(true); // อัปเดต Matrix ให้แน่ใจว่า Box ถูกต้อง
                     box.setFromObject(car);
 
                     const center = box.getCenter(new THREE.Vector3());
@@ -533,7 +533,7 @@
                     car.position.y -= minY;
                     
                     // 🔥 ยกเพิ่มอีกนิดเพื่อกันล้อจม (Offset)
-                    car.position.y += 5.35; 
+                    car.position.y += 0.35; 
 
                     // ✅ หันหน้าถูกทิศ (กลับด้าน 180 องศา)
                     car.rotation.y = Math.PI;
@@ -945,7 +945,13 @@
             document.getElementById('clutch').classList.remove('clutch-locked');
             
             if(car) {
-                car.position.set(0, 0, 0);
+                // รีเซ็ตเฉพาะ X Z
+                car.position.x = 0;
+                car.position.z = 0;
+
+                // ❌ ห้ามแตะ y
+                // car.position.y = ?
+
                 car.rotation.set(0, 0, 0);
             }
             
