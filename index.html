@@ -694,7 +694,11 @@
             if(manualState.engine) {
                 manualState.engine = false; manualState.rpm = 0; manualState.speed = 0;
             } else {
-                // Modified: Removed clutch check to allow easier start / multi-touch
+                // Re-added clutch requirement as per latest request
+                if(!manualState.clutch) {
+                    showAlert('⚠️ ต้องเหยียบคลัตช์ให้สุดก่อนกดปุ่มสตาร์ท');
+                    return;
+                }
                 manualState.engine = true; manualState.rpm = 800;
             }
             updateManualUI();
@@ -799,10 +803,13 @@
         }
 
         function shiftAuto(g) {
+            // User requested "Brake only at start" -> Removed brake check for shifting
+            /*
             if(!autoState.brake && autoState.engine) {
                 showAlert('⚠️ เหยียบเบรกก่อนเปลี่ยนเกียร์เสมอ');
                 return;
             }
+            */
             autoState.gear = g;
             updateAutoUI();
         }
