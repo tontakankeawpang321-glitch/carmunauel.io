@@ -412,7 +412,8 @@
                     car.position.y -= box.min.y; 
                     car.position.y += 0.05; 
 
-                    car.rotation.y = Math.PI; 
+                    // Fix: รถหันหน้าผิดทาง (กลับหัว) เอา Math.PI ออก
+                    car.rotation.y = 0; 
 
                     scene.add(car);
                     loadingMsg.style.display = 'none';
@@ -537,7 +538,8 @@
 
             car.position.x += Math.sin(carAngle) * speed * 0.1;
             car.position.z += Math.cos(carAngle) * speed * 0.1;
-            car.rotation.y = carAngle + Math.PI;
+            // Fix: ปรับให้รถหันหน้าตรงกับทิศทาง (เอา Math.PI ออก)
+            car.rotation.y = carAngle; 
 
             const cx = car.position.x - Math.sin(carAngle) * 10;
             const cz = car.position.z - Math.cos(carAngle) * 10;
