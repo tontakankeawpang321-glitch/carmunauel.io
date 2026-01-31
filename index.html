@@ -509,21 +509,29 @@
                         }
                     });
 
-                    // ✅ คำนวณขนาดจริง
+                    // ✅ คำนวณขนาดและสเกล
                     const box = new THREE.Box3().setFromObject(car);
                     const size = box.getSize(new THREE.Vector3());
-                    const center = box.getCenter(new THREE.Vector3());
-
-                    console.log("MODEL SIZE:", size);
 
                     // ✅ ย่อ/ขยายอัตโนมัติให้สูง ~3 หน่วย
                     const maxDim = Math.max(size.x, size.y, size.z);
-                    const scale = 5 / maxDim;
+                    const scale = 8 / maxDim;
                     car.scale.setScalar(scale);
 
-                    // ✅ จัดให้อยู่กลางฉาก (ต้องคูณ scale เพื่อให้ตำแหน่งแม่นยำหลังย่อขยาย)
-                    car.position.sub(center.multiplyScalar(scale));
-                    car.position.y = 0; // วางบนพื้น
+                    // 🔥 คำนวณใหม่หลัง scale
+                    car.updateMatrixWorld(); // อัปเดต Matrix ให้แน่ใจว่า Box ถูกต้อง
+                    box.setFromObject(car);
+
+                    const center = box.getCenter(new THREE.Vector3());
+                    
+                    // จัดกึ่งกลาง (เฉพาะ X และ Z)
+                    car.position.x -= center.x;
+                    car.position.z -= center.z;
+
+                    // ✅ ยกขึ้นตาม "ขอบล่าง" ของโมเดล
+                    // ลบด้วยค่าต่ำสุดของ Y เพื่อให้จุดต่ำสุดอยู่ที่ 0
+                    const minY = box.min.y;
+                    car.position.y -= minY;
 
                     // ✅ หันหน้าถูกทิศ (กลับด้าน 180 องศา)
                     car.rotation.y = Math.PI;
