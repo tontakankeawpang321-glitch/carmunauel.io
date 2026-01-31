@@ -449,11 +449,11 @@
         }
 
         function createArena() {
-            // Dark Asphalt Ground
+            // Dirt Ground (Brown)
             const geometry = new THREE.PlaneGeometry(ARENA_SIZE, ARENA_SIZE);
             const material = new THREE.MeshStandardMaterial({ 
-                color: 0x1a1a1a, 
-                roughness: 0.8 
+                color: 0x8b5a2b, // สีน้ำตาล (Dirt)
+                roughness: 0.9 
             });
             ground = new THREE.Mesh(geometry, material);
             ground.rotation.x = -Math.PI / 2;
@@ -515,7 +515,7 @@
 
                     // ✅ ย่อ/ขยายอัตโนมัติให้สูง ~3 หน่วย
                     const maxDim = Math.max(size.x, size.y, size.z);
-                    const scale = 6 / maxDim;
+                    const scale = 3 / maxDim;
                     car.scale.setScalar(scale);
 
                     // 🔥 คำนวณใหม่หลัง scale
