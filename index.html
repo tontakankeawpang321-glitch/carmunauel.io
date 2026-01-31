@@ -42,6 +42,13 @@
 
         .no-select { user-select: none; -webkit-user-select: none; }
         .external-card:active { transform: scale(0.98); }
+
+        /* Custom Modal Animation */
+        #custom-modal.flex { animation: popIn 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        @keyframes popIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
     </style>
 </head>
 <body class="bg-gray-100 h-screen flex flex-col overflow-hidden text-gray-800" oncontextmenu="return false;">
@@ -134,7 +141,7 @@
                     </div>
                 </div>
 
-                <!-- 2. Manual Info (Full Content Restored) -->
+                <!-- 2. Manual Info -->
                 <div id="content-manual-info" class="knowledge-content hidden">
                     <div class="bg-blue-600 rounded-2xl p-6 text-white shadow-lg mb-6">
                         <i class="fas fa-cogs text-4xl mb-2 opacity-80"></i>
@@ -179,7 +186,7 @@
                     </div>
                 </div>
 
-                <!-- 3. Auto Info (Full Content Restored) -->
+                <!-- 3. Auto Info -->
                 <div id="content-auto-info" class="knowledge-content hidden">
                     <div class="bg-green-600 rounded-2xl p-6 text-white shadow-lg mb-6">
                         <i class="fas fa-magic text-4xl mb-2 opacity-80"></i>
@@ -232,7 +239,7 @@
                     </div>
                 </div>
                 
-                 <!-- 4. Moto Info (Full Content Restored) -->
+                 <!-- 4. Moto Info -->
                  <div id="content-moto-info" class="knowledge-content hidden">
                      <div class="bg-orange-500 rounded-2xl p-6 text-white shadow-lg mb-6 relative overflow-hidden">
                         <i class="fas fa-motorcycle absolute -right-4 -bottom-4 text-8xl opacity-20"></i>
@@ -283,7 +290,7 @@
                     </div>
                 </div>
 
-                 <!-- 5. Bike Info (Full Content Restored) -->
+                 <!-- 5. Bike Info -->
                  <div id="content-bike-info" class="knowledge-content hidden">
                     <div class="bg-green-600 rounded-2xl p-6 text-white shadow-lg mb-6">
                         <h2 class="text-2xl font-bold mb-2">จักรยานปลอดภัย</h2>
@@ -535,7 +542,39 @@
         </button>
     </nav>
 
+    <!-- Custom Alert Modal -->
+    <div id="custom-modal" class="fixed inset-0 bg-black/60 z-50 hidden items-center justify-center backdrop-blur-sm fade-in">
+        <div class="bg-white p-6 rounded-2xl shadow-2xl max-w-sm w-full mx-4 text-center transform transition-all scale-100">
+            <div id="modal-icon" class="text-5xl mb-4">⚠️</div>
+            <h3 class="text-xl font-bold text-gray-800 mb-2">แจ้งเตือน</h3>
+            <p id="modal-msg" class="text-gray-600 mb-6 text-sm">ข้อความแจ้งเตือน</p>
+            <button onclick="closeModal()" class="bg-blue-600 text-white w-full py-3 rounded-xl font-bold hover:bg-blue-700 transition active:scale-95">ตกลง</button>
+        </div>
+    </div>
+
     <script>
+        // --- Custom Alert System ---
+        function showAlert(msg) {
+            let icon = '🔔';
+            let cleanMsg = msg;
+            
+            if(msg.includes('💥')) { icon = '💥'; cleanMsg = msg.replace('💥', ''); }
+            else if(msg.includes('⚠️')) { icon = '⚠️'; cleanMsg = msg.replace('⚠️', ''); }
+            
+            document.getElementById('modal-icon').innerText = icon;
+            document.getElementById('modal-msg').innerHTML = cleanMsg.trim();
+            
+            const modal = document.getElementById('custom-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('custom-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
         // --- Navigation Logic ---
         let currentSection = 'knowledge';
         
@@ -664,7 +703,7 @@
         function shiftManual(g) {
             if(!manualState.clutch && manualState.engine) {
                 manualState.engine = false; manualState.rpm = 0; manualState.speed = 0;
-                alert('💥 เครื่องดับ! เปลี่ยนเกียร์ไม่เหยียบคลัตช์');
+                showAlert('💥 เครื่องดับ! เปลี่ยนเกียร์ไม่เหยียบคลัตช์');
             } else {
                 manualState.gear = (manualState.gear === g) ? 'N' : g;
             }
@@ -735,12 +774,12 @@
 
         function toggleAutoEngine() {
             if(!autoState.brake && !autoState.engine) {
-                alert('⚠️ กรุณาเหยียบเบรกก่อนกดปุ่มสตาร์ท');
+                showAlert('⚠️ กรุณาเหยียบเบรกก่อนกดปุ่มสตาร์ท');
                 return;
             }
             // Strict P gear requirement for Auto start
             if(autoState.gear !== 'P' && !autoState.engine) {
-                alert('⚠️ ต้องเข้าเกียร์ P ก่อนสตาร์ท');
+                showAlert('⚠️ ต้องเข้าเกียร์ P ก่อนสตาร์ท');
                 return;
             }
             autoState.engine = !autoState.engine;
@@ -750,7 +789,7 @@
 
         function shiftAuto(g) {
             if(!autoState.brake && autoState.engine) {
-                alert('⚠️ เหยียบเบรกก่อนเปลี่ยนเกียร์เสมอ');
+                showAlert('⚠️ เหยียบเบรกก่อนเปลี่ยนเกียร์เสมอ');
                 return;
             }
             autoState.gear = g;
