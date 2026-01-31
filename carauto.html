@@ -16,6 +16,7 @@
             /* รองรับ Safe Area สำหรับมือถือจอมีรอยบาก */
             padding-left: env(safe-area-inset-left);
             padding-right: env(safe-area-inset-right);
+            padding-bottom: env(safe-area-inset-bottom);
         }
         
         /* UI Overlay */
@@ -29,9 +30,10 @@
             background: rgba(255, 255, 255, 0.8);
             padding: 10px 20px;
             margin: 15px;
+            margin-top: max(15px, env(safe-area-inset-top)); /* หลบ Notch ด้านบน */
             border-radius: 20px;
             display: flex; justify-content: space-between; align-items: center;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05); /* เงาจางลง */
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
             pointer-events: auto;
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255,255,255,0.5);
@@ -53,15 +55,15 @@
         #controls {
             pointer-events: auto;
             display: flex; justify-content: space-between; align-items: flex-end;
-            padding: 0 20px 20px 20px; 
-            height: 60%;
+            padding: 0 20px 30px 20px; 
+            height: 50%; /* ใช้พื้นที่ครึ่งล่าง */
             position: relative;
             box-sizing: border-box;
+            width: 100%;
         }
 
         /* --- Gear Selector (PRND) --- */
         .gear-container {
-            /* ปรับให้โปร่งและเบาขึ้น */
             background: rgba(255, 255, 255, 0.2); 
             padding: 8px;
             border-radius: 15px;
@@ -70,10 +72,10 @@
             z-index: 20;
             backdrop-filter: blur(8px);
             border: 1px solid rgba(255,255,255,0.3);
+            margin-bottom: 10px; /* ดันขึ้นจากขอบล่างนิดหน่อย */
         }
         .gear-btn {
             width: 55px; height: 45px;
-            /* สีเทาโปร่งแสง */
             background: rgba(62, 70, 86, 0.8);
             color: white;
             border-radius: 10px;
@@ -98,11 +100,11 @@
         /* --- Steering Wheel --- */
         .steering-container {
             position: absolute;
-            bottom: 20px;
+            bottom: 30px;
             left: 50%;
             transform: translateX(-50%);
-            width: 150px; 
-            height: 150px;
+            width: 140px; 
+            height: 140px;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -111,7 +113,6 @@
         #steering-wheel {
             width: 100%;
             height: 100%;
-            /* ปรับสีให้ดูซอฟต์ลง */
             background: radial-gradient(circle, #444 30%, #222 70%);
             border-radius: 50%;
             border: 6px solid #555;
@@ -137,11 +138,11 @@
 
         /* --- Pedals --- */
         .pedals-group {
-            display: flex; align-items: flex-end; gap: 15px;
+            display: flex; align-items: flex-end; gap: 10px;
             z-index: 20;
+            margin-bottom: 10px;
         }
         .pedal {
-            /* ปรับให้โปร่งแสงและเบาขึ้น */
             background: rgba(47, 53, 66, 0.7);
             border-radius: 12px;
             box-shadow: 0 5px 10px rgba(0,0,0,0.2);
@@ -153,12 +154,8 @@
             backdrop-filter: blur(5px);
             border: 1px solid rgba(255,255,255,0.1);
         }
-        #pedal-brake { width: 80px; height: 90px; }
-        #pedal-gas { 
-            width: 60px; height: 140px; 
-            /* คันเร่งสีดำจางลง */
-            background: rgba(0, 0, 0, 0.75); 
-        }
+        #pedal-brake { width: 75px; height: 85px; }
+        #pedal-gas { width: 55px; height: 130px; background: rgba(0, 0, 0, 0.75); }
 
         .pedal-pressed {
             transform: scale(0.95) translateY(5px);
@@ -189,35 +186,43 @@
         }
         
         #loading-msg {
-            position: absolute; top: 20%; width: 100%; text-align: center;
+            position: absolute; top: 15%; width: 100%; text-align: center;
             color: #555; font-size: 14px; pointer-events: none; display: none; font-weight: bold;
         }
 
-        /* --- Mobile Responsive (Landscape) --- */
+        /* --- Responsive Styles --- */
+        
+        /* Portrait Mode (Vertical) - ปรับขนาดให้พอดีจอแคบ */
+        @media (orientation: portrait) {
+            #controls { 
+                padding: 0 10px 40px 10px; /* ลด padding ด้านข้าง */
+            }
+            .gear-btn { 
+                width: 45px; height: 40px; font-size: 16px; /* ลดขนาดปุ่มเกียร์ */
+            }
+            .gear-container {
+                gap: 6px; padding: 6px; margin-bottom: 20px; /* ขยับขึ้นหลบพวงมาลัยถ้าจำเป็น */
+            }
+            .steering-container {
+                width: 120px; height: 120px; bottom: 30px; /* ลดขนาดพวงมาลัย */
+            }
+            #pedal-brake { width: 65px; height: 80px; } /* ลดขนาดเบรก */
+            #pedal-gas { width: 50px; height: 120px; } /* ลดขนาดคันเร่ง */
+            .pedals-group { gap: 8px; margin-bottom: 20px; }
+            
+            #top-bar { margin: 10px 15px; }
+        }
+
+        /* Landscape Mode - จอเตี้ย */
         @media (max-height: 500px) {
             .gear-btn { width: 45px; height: 40px; font-size: 16px; }
             .gear-container { gap: 5px; padding: 5px; }
-            #steering-wheel { border-width: 5px; }
             .steering-container { width: 120px; height: 120px; bottom: 10px; }
             #pedal-brake { width: 70px; height: 80px; }
             #pedal-gas { width: 55px; height: 120px; }
-            #top-bar { margin: 10px; padding: 8px 15px; }
+            #top-bar { margin: 5px 15px; padding: 5px 15px; }
             .speed-val { font-size: 22px; }
-            #controls { padding: 0 15px 15px 15px; }
-        }
-
-        /* --- Rotate Warning (Portrait) --- */
-        #rotate-msg {
-            display: none;
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #2f3542; color: white; z-index: 100;
-            flex-direction: column; justify-content: center; align-items: center; text-align: center;
-        }
-        .rotate-icon { font-size: 40px; margin-bottom: 20px; animation: rotate 2s infinite; }
-        @keyframes rotate { 0% { transform: rotate(0deg); } 50% { transform: rotate(90deg); } 100% { transform: rotate(0deg); } }
-        
-        @media (orientation: portrait) {
-            #rotate-msg { display: flex; }
+            #controls { padding: 0 15px 10px 15px; height: 60%; }
         }
     </style>
     <!-- Three.js & GLTFLoader -->
@@ -228,13 +233,6 @@
 
     <div id="container"></div>
     
-    <!-- Rotate Screen Warning -->
-    <div id="rotate-msg">
-        <div class="rotate-icon">📱</div>
-        <h2>กรุณาหมุนจอเป็นแนวนอน</h2>
-        <p>เพื่อประสบการณ์การขับขี่ที่ดีที่สุด</p>
-    </div>
-
     <div id="game-ui">
         <div id="top-bar">
             <div class="speed-box">
@@ -348,7 +346,7 @@
             loadingMsg.style.display = 'block';
 
             // ใช้ Model ตัวอย่างจาก Three.js (Ferrari)
-            const modelUrl = '2025_bmw_m4_competition.glb'; 
+            const modelUrl = 'https://cdn.jsdelivr.net/gh/mrdoob/three.js@master/examples/models/gltf/Ferrari.glb'; 
 
             loader.load(modelUrl, 
                 (gltf) => {
