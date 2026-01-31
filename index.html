@@ -479,25 +479,34 @@
         }
 
         function loadCarModel() {
-            createProceduralCar(); 
-            
+            createProceduralCar(); // รถชั่วคราวกันจอว่าง
+
             const loader = new THREE.GLTFLoader();
             const loadingMsg = document.getElementById('loading-msg');
             loadingMsg.style.display = 'block';
 
-            loader.load('https://cdn.jsdelivr.net/gh/mrdoob/three.js@master/examples/models/gltf/Ferrari.glb', function (gltf) {
-                scene.remove(car);
-                car = gltf.scene;
-                car.scale.set(0.015, 0.015, 0.015); 
-                car.rotation.y = Math.PI; 
-                car.traverse(n => { if(n.isMesh) { n.castShadow = true; n.receiveShadow = true; } });
-                scene.add(car);
-                loadingMsg.style.display = 'none';
-            }, undefined, function (error) {
-                console.error(error);
-                loadingMsg.innerText = "ใช้รถพื้นฐาน";
-                setTimeout(() => loadingMsg.style.display = 'none', 2000);
-            });
+            loader.load(
+                'source/2017_chevrolet_colorado_zr2.glb',   // 👈 ไฟล์ของคุณ
+                (gltf) => {
+                    scene.remove(car);
+                    car = gltf.scene;
+                    car.scale.set(1, 1, 1); // ปรับตามขนาดโมเดล
+                    car.position.set(0, 0, 0);
+                    car.traverse(o => {
+                        if (o.isMesh) {
+                            o.castShadow = true;
+                            o.receiveShadow = true;
+                        }
+                    });
+                    scene.add(car);
+                    loadingMsg.style.display = 'none';
+                },
+                undefined,
+                (err) => {
+                    console.error(err);
+                    loadingMsg.innerText = "โหลดรถไม่สำเร็จ";
+                }
+            );
         }
 
         function createProceduralCar() {
