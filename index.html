@@ -49,6 +49,9 @@
             from { opacity: 0; transform: scale(0.9); }
             to { opacity: 1; transform: scale(1); }
         }
+
+        /* Chatbot Animation */
+        #chat-window { transition: all 0.3s ease; }
     </style>
 </head>
 <body class="bg-gray-100 h-screen flex flex-col overflow-hidden text-gray-800" oncontextmenu="return false;">
@@ -552,6 +555,40 @@
         </div>
     </div>
 
+    <!-- Chatbot Floating Button -->
+    <button onclick="toggleChat()" class="fixed bottom-24 right-4 bg-blue-600 text-white p-4 rounded-full shadow-2xl z-40 hover:bg-blue-700 transition-transform transform hover:scale-110 active:scale-95 flex items-center justify-center w-14 h-14">
+        <i class="fas fa-comment-dots text-2xl"></i>
+    </button>
+
+    <!-- Chat Window -->
+    <div id="chat-window" class="fixed bottom-24 right-4 w-80 bg-white rounded-2xl shadow-2xl z-50 hidden flex-col border border-gray-200 overflow-hidden fade-in" style="max-height: 500px; height: 60vh;">
+        <!-- Chat Header -->
+        <div class="bg-blue-600 p-4 text-white flex justify-between items-center shrink-0">
+            <div class="flex items-center gap-2">
+                <i class="fas fa-robot"></i>
+                <span class="font-bold">ผู้ช่วยขับรถ</span>
+            </div>
+            <button onclick="toggleChat()" class="text-white hover:text-gray-200"><i class="fas fa-times"></i></button>
+        </div>
+        
+        <!-- Chat Messages -->
+        <div id="chat-messages" class="flex-1 p-4 overflow-y-auto space-y-3 bg-gray-50 text-sm">
+            <div class="flex justify-start">
+                <div class="bg-white p-3 rounded-tr-xl rounded-br-xl rounded-bl-xl shadow-sm text-gray-800 border border-gray-100 max-w-[85%]">
+                    สวัสดีครับ! มีเรื่องสงสัยเกี่ยวกับการขับรถถามผมได้เลยครับ 🚗
+                </div>
+            </div>
+        </div>
+
+        <!-- Chat Input -->
+        <div class="p-3 bg-white border-t border-gray-100 flex gap-2 shrink-0">
+            <input type="text" id="chat-input" placeholder="พิมพ์ข้อความ..." class="flex-1 border border-gray-300 rounded-full px-4 py-2 text-sm focus:outline-none focus:border-blue-500" onkeypress="handleChatEnter(event)">
+            <button onclick="sendMessage()" class="bg-blue-600 text-white w-10 h-10 rounded-full flex items-center justify-center hover:bg-blue-700 transition shadow-sm">
+                <i class="fas fa-paper-plane text-xs"></i>
+            </button>
+        </div>
+    </div>
+
     <script>
         // --- Custom Alert System ---
         function showAlert(msg) {
@@ -573,6 +610,104 @@
             const modal = document.getElementById('custom-modal');
             modal.classList.add('hidden');
             modal.classList.remove('flex');
+        }
+
+        // --- Chatbot Logic ---
+        function toggleChat() {
+            const chat = document.getElementById('chat-window');
+            if (chat.classList.contains('hidden')) {
+                chat.classList.remove('hidden');
+                chat.classList.add('flex');
+                setTimeout(() => document.getElementById('chat-input').focus(), 100);
+            } else {
+                chat.classList.add('hidden');
+                chat.classList.remove('flex');
+            }
+        }
+
+        function handleChatEnter(e) {
+            if(e.key === 'Enter') sendMessage();
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('chat-input');
+            const msg = input.value.trim();
+            if(!msg) return;
+
+            // Add User Message
+            addMessage(msg, 'user');
+            input.value = '';
+
+            // Show Loading
+            const loadingId = addLoading();
+
+            try {
+                const response = await fetch('https://sonkubroad.tontakankeawpang.workers.dev/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: msg })
+                });
+
+                const data = await response.text(); 
+                
+                removeMessage(loadingId);
+                
+                let botReply = data;
+                try {
+                    const json = JSON.parse(data);
+                    if(json.reply) botReply = json.reply;
+                    else if(json.message) botReply = json.message;
+                } catch(e) { /* is plain text */ }
+
+                addMessage(botReply, 'bot');
+
+            } catch (error) {
+                removeMessage(loadingId);
+                addMessage("ขออภัย ระบบขัดข้องชั่วคราว", 'bot');
+                console.error(error);
+            }
+        }
+
+        function addMessage(text, sender) {
+            const container = document.getElementById('chat-messages');
+            const div = document.createElement('div');
+            div.className = sender === 'user' ? 'flex justify-end' : 'flex justify-start';
+            
+            const bubble = document.createElement('div');
+            const baseClasses = "p-3 shadow-sm text-gray-800 max-w-[85%] text-sm break-words";
+            bubble.className = sender === 'user' 
+                ? `${baseClasses} bg-blue-600 text-white rounded-tl-xl rounded-bl-xl rounded-br-xl` 
+                : `${baseClasses} bg-white rounded-tr-xl rounded-br-xl rounded-bl-xl border border-gray-100`;
+            
+            bubble.innerText = text;
+            div.appendChild(bubble);
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
+            return div.id = 'msg-' + Date.now();
+        }
+
+        function addLoading() {
+            const container = document.getElementById('chat-messages');
+            const div = document.createElement('div');
+            div.className = 'flex justify-start';
+            div.id = 'loading-indicator';
+            div.innerHTML = `
+                <div class="bg-white p-3 rounded-tr-xl rounded-br-xl rounded-bl-xl shadow-sm border border-gray-100">
+                    <div class="flex gap-1">
+                        <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                        <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+                        <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.4s"></div>
+                    </div>
+                </div>
+            `;
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
+            return div.id;
+        }
+
+        function removeMessage(id) {
+            const el = document.getElementById(id);
+            if(el) el.remove();
         }
 
         // --- Navigation Logic ---
